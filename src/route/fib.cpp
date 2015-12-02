@@ -59,7 +59,7 @@ Fib::scheduleEntryExpiration(const ndn::Name& name, int32_t feSeqNum,
                              const ndn::time::seconds& expTime)
 {
   _LOG_DEBUG("Fib::scheduleEntryExpiration Called");
-  _LOG_INFO("Name: " << name << " Seq Num: " << feSeqNum);
+  _LOG_DEBUG("Name: " << name << " Seq Num: " << feSeqNum);
 
   return m_scheduler.scheduleEvent(expTime, ndn::bind(&Fib::remove, this, name));
 }

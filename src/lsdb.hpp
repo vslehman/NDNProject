@@ -51,6 +51,9 @@ public:
     return m_seqNo;
   }
 
+  void
+  logSeqNo() const;
+
 public:
   bool
   doesLsaExist(const ndn::Name& key, const std::string& lsType);

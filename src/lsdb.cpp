@@ -48,6 +48,14 @@ Lsdb::Lsdb(Nlsr& nlsr, ndn::Scheduler& scheduler, SyncLogicHandler& sync)
   , m_seqNo(0)
 {
   onLsdbChange.connect([this] { ++m_seqNo; });
+  logSeqNo();
+}
+
+void
+Lsdb::logSeqNo() const
+{
+  _LOG_INFO(m_seqNo);
+  m_scheduler.scheduleEvent(ndn::time::seconds(1), std::bind(&Lsdb::logSeqNo, this));
 }
 
 void
