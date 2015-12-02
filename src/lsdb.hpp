@@ -25,6 +25,7 @@
 #include <utility>
 #include <boost/cstdint.hpp>
 #include <ndn-cxx/security/key-chain.hpp>
+#include <ndn-cxx/util/signal.hpp>
 #include <ndn-cxx/util/time.hpp>
 
 #include "conf-parameter.hpp"
@@ -42,15 +43,15 @@ class SyncLogicHandler;
 class Lsdb
 {
 public:
-  Lsdb(Nlsr& nlsr, ndn::Scheduler& scheduler, SyncLogicHandler& sync)
-    : m_nlsr(nlsr)
-    , m_scheduler(scheduler)
-    , m_sync(sync)
-    , m_lsaRefreshTime(0)
-    , m_adjLsaBuildInterval(static_cast<uint32_t>(ADJ_LSA_BUILD_INTERVAL_DEFAULT))
+  Lsdb(Nlsr& nlsr, ndn::Scheduler& scheduler, SyncLogicHandler& sync);
+
+  uint64_t
+  getSeqNo() const
   {
+    return m_seqNo;
   }
 
+public:
   bool
   doesLsaExist(const ndn::Name& key, const std::string& lsType);
   // function related to Name LSDB
@@ -291,6 +292,9 @@ private:
   static const steady_clock::TimePoint DEFAULT_LSA_RETRIEVAL_DEADLINE;
 
   ndn::time::seconds m_adjLsaBuildInterval;
+
+  uint64_t m_seqNo; // Increments on any change to the LSDB
+  ndn::util::signal::Signal<Lsdb> onLsdbChange;
 };
 
 }//namespace nlsr

@@ -266,6 +266,91 @@ BOOST_AUTO_TEST_CASE(InstallNameLsa)
   //nlsr.getStatistics().printStatistics();
 }
 
+BOOST_AUTO_TEST_CASE(SeqNo)
+{
+  std::string otherRouter("/ndn/site/%C1.router/other-router");
+  ndn::time::system_clock::TimePoint MAX_TIME = ndn::time::system_clock::TimePoint::max();
+  uint64_t prevSeqNo = lsdb.getSeqNo();
+
+  // Adjacency LSA
+  Adjacent adjacency("adjacency");
+  adjacency.setStatus(Adjacent::STATUS_ACTIVE);
+
+  AdjacencyList adjacencies;
+  adjacencies.insert(adjacency);
+
+  AdjLsa adjLsa(otherRouter, AdjLsa::TYPE_STRING, 12, MAX_TIME, 1, adjacencies);
+
+  // Install
+  lsdb.installAdjLsa(adjLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Update
+  uint32_t lsSeqNo = adjLsa.getLsSeqNo();
+  adjLsa.setLsSeqNo(++lsSeqNo);
+  lsdb.installAdjLsa(adjLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Remove
+  lsdb.removeAdjLsa(adjLsa.getKey());
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Name LSA
+  NamePrefixList prefixes;
+  prefixes.insert("/ndn/name");
+
+  NameLsa nameLsa(otherRouter, NameLsa::TYPE_STRING, 1, MAX_TIME, prefixes);
+
+  // Install
+  lsdb.installNameLsa(nameLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Update
+  lsSeqNo = nameLsa.getLsSeqNo();
+  nameLsa.setLsSeqNo(++lsSeqNo);
+  lsdb.installNameLsa(nameLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Remove
+  lsdb.removeNameLsa(nameLsa.getKey());
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Coordinate LSA
+  CoordinateLsa coordLsa(otherRouter, CoordinateLsa::TYPE_STRING, 12, MAX_TIME, 2.5, 30.0);
+
+  // Install
+  lsdb.installCoordinateLsa(coordLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Update
+  lsSeqNo = coordLsa.getLsSeqNo();
+  coordLsa.setLsSeqNo(++lsSeqNo);
+  lsdb.installCoordinateLsa(coordLsa);
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+
+  // Remove
+  lsdb.removeCoordinateLsa(coordLsa.getKey());
+
+  BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
+  prevSeqNo = lsdb.getSeqNo();
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 } //namespace test

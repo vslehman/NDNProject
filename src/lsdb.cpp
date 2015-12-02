@@ -39,6 +39,17 @@ const steady_clock::TimePoint Lsdb::DEFAULT_LSA_RETRIEVAL_DEADLINE = steady_cloc
 
 using namespace std;
 
+Lsdb::Lsdb(Nlsr& nlsr, ndn::Scheduler& scheduler, SyncLogicHandler& sync)
+  : m_nlsr(nlsr)
+  , m_scheduler(scheduler)
+  , m_sync(sync)
+  , m_lsaRefreshTime(0)
+  , m_adjLsaBuildInterval(static_cast<uint32_t>(ADJ_LSA_BUILD_INTERVAL_DEFAULT))
+  , m_seqNo(0)
+{
+  onLsdbChange.connect([this] { ++m_seqNo; });
+}
+
 void
 Lsdb::cancelScheduleLsaExpiringEvent(ndn::EventId eid)
 {
@@ -134,6 +145,8 @@ Lsdb::installNameLsa(NameLsa& nlsa)
     if (chkNameLsa->getLsSeqNo() < nlsa.getLsSeqNo()) {
       _LOG_DEBUG("Updated Name LSA. Updating LSDB");
       _LOG_DEBUG("Deleting Name Lsa");
+      this->onLsdbChange();
+
       chkNameLsa->writeLog();
       chkNameLsa->setLsSeqNo(nlsa.getLsSeqNo());
       chkNameLsa->setExpirationTimePoint(nlsa.getExpirationTimePoint());
@@ -197,6 +210,8 @@ Lsdb::addNameLsa(NameLsa& nlsa)
                                                       nlsa.getKey()));
   if (it == m_nameLsdb.end()) {
     m_nameLsdb.push_back(nlsa);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
@@ -222,7 +237,10 @@ Lsdb::removeNameLsa(const ndn::Name& key)
         }
       }
     }
+
     m_nameLsdb.erase(it);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
@@ -344,6 +362,8 @@ Lsdb::installCoordinateLsa(CoordinateLsa& clsa)
     if (chkCorLsa->getLsSeqNo() < clsa.getLsSeqNo()) {
       _LOG_DEBUG("Updated Coordinate LSA. Updating LSDB");
       _LOG_DEBUG("Deleting Coordinate Lsa");
+      this->onLsdbChange();
+
       chkCorLsa->writeLog();
       chkCorLsa->setLsSeqNo(clsa.getLsSeqNo());
       chkCorLsa->setExpirationTimePoint(clsa.getExpirationTimePoint());
@@ -379,6 +399,8 @@ Lsdb::addCoordinateLsa(CoordinateLsa& clsa)
                                                                  clsa.getKey()));
   if (it == m_corLsdb.end()) {
     m_corLsdb.push_back(clsa);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
@@ -400,6 +422,8 @@ Lsdb::removeCoordinateLsa(const ndn::Name& key)
                                               (*it).getOrigRouter());
     }
     m_corLsdb.erase(it);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
@@ -496,6 +520,8 @@ Lsdb::addAdjLsa(AdjLsa& alsa)
                                                      alsa.getKey()));
   if (it == m_adjLsdb.end()) {
     m_adjLsdb.push_back(alsa);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
@@ -562,6 +588,8 @@ Lsdb::installAdjLsa(AdjLsa& alsa)
     if (chkAdjLsa->getLsSeqNo() < alsa.getLsSeqNo()) {
       _LOG_DEBUG("Updated Adj LSA. Updating LSDB");
       _LOG_DEBUG("Deleting Adj Lsa");
+      this->onLsdbChange();
+
       chkAdjLsa->writeLog();
       chkAdjLsa->setLsSeqNo(alsa.getLsSeqNo());
       chkAdjLsa->setExpirationTimePoint(alsa.getExpirationTimePoint());
@@ -613,7 +641,10 @@ Lsdb::removeAdjLsa(const ndn::Name& key)
     _LOG_DEBUG("Deleting Adj Lsa");
     (*it).writeLog();
     (*it).removeNptEntries(m_nlsr);
+
     m_adjLsdb.erase(it);
+    this->onLsdbChange();
+
     return true;
   }
   return false;
