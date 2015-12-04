@@ -36,6 +36,7 @@ INIT_LOGGER("Lsdb");
 const ndn::Name::Component Lsdb::NAME_COMPONENT = ndn::Name::Component("lsdb");
 const ndn::time::seconds Lsdb::GRACE_PERIOD = ndn::time::seconds(10);
 const steady_clock::TimePoint Lsdb::DEFAULT_LSA_RETRIEVAL_DEADLINE = steady_clock::TimePoint::min();
+const ndn::time::seconds Lsdb::SNAPSHOT_INTERVAL = ndn::time::seconds(60);
 
 using namespace std;
 
@@ -49,6 +50,7 @@ Lsdb::Lsdb(Nlsr& nlsr, ndn::Scheduler& scheduler, SyncLogicHandler& sync)
 {
   onLsdbChange.connect([this] { ++m_seqNo; });
   logSeqNo();
+  m_scheduler.scheduleEvent(SNAPSHOT_INTERVAL, std::bind(&Lsdb::logSnapshot, this));
 }
 
 void
@@ -56,6 +58,31 @@ Lsdb::logSeqNo() const
 {
   _LOG_INFO(m_seqNo);
   m_scheduler.scheduleEvent(ndn::time::seconds(1), std::bind(&Lsdb::logSeqNo, this));
+}
+
+void
+Lsdb::logSnapshot() const
+{
+  std::string snapshot = "Snapshot\n";
+  snapshot += "---\n";
+  snapshot += "Adjacency LSAs:\n";
+
+  for (const AdjLsa& lsa : m_adjLsdb) {
+    snapshot += lsa.getOrigRouter().toUri() + " " + std::to_string(lsa.getLsSeqNo()) + "\n";
+  }
+
+  snapshot += "---\n";
+  snapshot += "Coordinate LSAs:\n";
+
+  for (const NameLsa& lsa : m_nameLsdb) {
+    snapshot += lsa.getOrigRouter().toUri() + " " + std::to_string(lsa.getLsSeqNo()) + "\n";
+  }
+
+  snapshot += "---\n";
+
+  _LOG_INFO(snapshot);
+
+  m_scheduler.scheduleEvent(SNAPSHOT_INTERVAL, std::bind(&Lsdb::logSnapshot, this));
 }
 
 void

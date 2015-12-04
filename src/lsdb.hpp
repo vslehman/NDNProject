@@ -54,6 +54,9 @@ public:
   void
   logSeqNo() const;
 
+  void
+  logSnapshot() const;
+
 public:
   bool
   doesLsaExist(const ndn::Name& key, const std::string& lsType);
@@ -298,6 +301,8 @@ private:
 
   uint64_t m_seqNo; // Increments on any change to the LSDB
   ndn::util::signal::Signal<Lsdb> onLsdbChange;
+
+  static const ndn::time::seconds SNAPSHOT_INTERVAL;
 };
 
 }//namespace nlsr
