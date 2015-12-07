@@ -725,8 +725,10 @@ Lsdb::exprireOrRefreshNameLsa(const ndn::Name& lsaKey, uint64_t seqNo)
     _LOG_DEBUG("LSA Exists with seq no: " << chkNameLsa->getLsSeqNo());
     if (chkNameLsa->getLsSeqNo() == seqNo) {
       if (chkNameLsa->getOrigRouter() == m_thisRouterPrefix) {
-        _LOG_DEBUG("Own Name LSA, so refreshing it");
+        _LOG_INFO("Refreshing Name LSA");
         _LOG_DEBUG("Deleting Name Lsa");
+        this->onLsdbChange();
+
         chkNameLsa->writeLog();
         chkNameLsa->setLsSeqNo(chkNameLsa->getLsSeqNo() + 1);
         m_nlsr.getSequencingManager().setNameLsaSeq(chkNameLsa->getLsSeqNo());
@@ -757,8 +759,10 @@ Lsdb::exprireOrRefreshAdjLsa(const ndn::Name& lsaKey, uint64_t seqNo)
     _LOG_DEBUG("LSA Exists with seq no: " << chkAdjLsa->getLsSeqNo());
     if (chkAdjLsa->getLsSeqNo() == seqNo) {
       if (chkAdjLsa->getOrigRouter() == m_thisRouterPrefix) {
-        _LOG_DEBUG("Own Adj LSA, so refreshing it");
+        _LOG_INFO("Refreshing Adjacency LSA");
         _LOG_DEBUG("Deleting Adj Lsa");
+        this->onLsdbChange();
+
         chkAdjLsa->writeLog();
         chkAdjLsa->setLsSeqNo(chkAdjLsa->getLsSeqNo() + 1);
         m_nlsr.getSequencingManager().setAdjLsaSeq(chkAdjLsa->getLsSeqNo());
@@ -792,8 +796,10 @@ Lsdb::exprireOrRefreshCoordinateLsa(const ndn::Name& lsaKey,
     _LOG_DEBUG("LSA Exists with seq no: " << chkCorLsa->getLsSeqNo());
     if (chkCorLsa->getLsSeqNo() == seqNo) {
       if (chkCorLsa->getOrigRouter() == m_thisRouterPrefix) {
-        _LOG_DEBUG("Own Cor LSA, so refreshing it");
+        _LOG_DEBUG("Refreshing Coordinate LSA");
         _LOG_DEBUG("Deleting Coordinate Lsa");
+        this->onLsdbChange();
+
         chkCorLsa->writeLog();
         chkCorLsa->setLsSeqNo(chkCorLsa->getLsSeqNo() + 1);
         m_nlsr.getSequencingManager().setCorLsaSeq(chkCorLsa->getLsSeqNo());
