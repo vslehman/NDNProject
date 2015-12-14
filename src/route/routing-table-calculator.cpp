@@ -99,9 +99,9 @@ RoutingTableCalculator::makeAdjMatrix(Nlsr& pnlsr, Map pMap)
           correctedCost = std::max(toCost, fromCost);
         }
 
-        _LOG_WARN("Cost between [" << row << "][" << col << "] and [" << col << "][" << row <<
-                  "] are not the same (" << toCost << " != " << fromCost << "). " <<
-                  "Correcting to cost: " << correctedCost);
+        //_LOG_WARN("Cost between [" << row << "][" << col << "] and [" << col << "][" << row <<
+        //          "] are not the same (" << toCost << " != " << fromCost << "). " <<
+        //          "Correcting to cost: " << correctedCost);
 
         adjMatrix[row][col] = correctedCost;
         adjMatrix[col][row] = correctedCost;
