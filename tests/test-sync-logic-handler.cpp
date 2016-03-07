@@ -22,6 +22,7 @@
 #include "test-common.hpp"
 
 #include "nlsr.hpp"
+#include "statistics.hpp"
 #include "communication/sync-logic-handler.hpp"
 
 #include <ndn-cxx/util/dummy-client-face.hpp>
@@ -94,6 +95,8 @@ BOOST_AUTO_TEST_CASE(UpdateForOther)
 
   ++it;
   BOOST_CHECK_EQUAL(it->getName().getPrefix(-1), updateName + CoordinateLsa::TYPE_STRING + "/");
+
+  nlsr.getStatistics().printStatistics();
 }
 
 BOOST_AUTO_TEST_CASE(NoUpdateForSelf)
@@ -188,6 +191,8 @@ BOOST_AUTO_TEST_CASE(CreateSyncSocketOnInitialization) // Bug #2649
 
   // Publish a routing update before an Adjacency LSA is built
   BOOST_CHECK_NO_THROW(sync.publishRoutingUpdate());
+
+  nlsr.getStatistics().printStatistics();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -66,7 +66,7 @@ public:
   publishRoutingUpdate();
 
   void
-  createSyncSocket(const ndn::Name& syncPrefix);
+  createSyncSocket(const ndn::Name& syncPrefix, Statistics &stats);
 
 private:
   void

@@ -25,6 +25,7 @@
 #include "hello-protocol.hpp"
 #include "utility/name-helper.hpp"
 #include "logger.hpp"
+#include "statistics.hpp"
 
 namespace nlsr {
 
@@ -46,6 +47,7 @@ HelloProtocol::expressInterest(const ndn::Name& interestName, uint32_t seconds)
                                                  _1, _2),
                                        ndn::bind(&HelloProtocol::processInterestTimedOut,
                                                  this, _1));
+  m_nlsr.getStatistics().countInterest('h');
 }
 
 void
@@ -84,6 +86,7 @@ void
 HelloProtocol::processInterest(const ndn::Name& name,
                                const ndn::Interest& interest)
 {
+  m_nlsr.getStatistics().countData('h');
   /* interest name: /<neighbor>/NLSR/INFO/<router> */
   const ndn::Name interestName = interest.getName();
   _LOG_DEBUG("Interest Received for Name: " << interestName);
@@ -102,6 +105,7 @@ HelloProtocol::processInterest(const ndn::Name& name,
     m_nlsr.getKeyChain().sign(*data, m_nlsr.getDefaultCertName());
     _LOG_DEBUG("Sending out data for name: " << interest.getName());
     m_nlsr.getNlsrFace().put(*data);
+
     Adjacent *adjacent = m_nlsr.getAdjacencyList().findAdjacent(neighbor);
     if (adjacent->getStatus() == Adjacent::STATUS_INACTIVE) {
       if(adjacent->getFaceId() != 0){

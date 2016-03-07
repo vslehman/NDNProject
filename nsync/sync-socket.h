@@ -62,7 +62,8 @@ public:
               ndn::shared_ptr<ndn::Validator> validator,
               ndn::shared_ptr<ndn::Face> face,
               NewDataCallback dataCallback,
-              RemoveCallback rmCallback);
+              RemoveCallback rmCallback,
+              nlsr::Statistics &stats);
 
   ~SyncSocket ();
 

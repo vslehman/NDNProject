@@ -27,6 +27,8 @@
 #include <ndn-cxx/management/nfd-control-parameters.hpp>
 #include <ndn-cxx/util/scheduler.hpp>
 
+#include "statistics.hpp"
+
 namespace nlsr {
 
 class Nlsr;

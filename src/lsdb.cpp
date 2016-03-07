@@ -27,6 +27,7 @@
 #include "conf-parameter.hpp"
 #include "utility/name-helper.hpp"
 #include "logger.hpp"
+#include "statistics.hpp"
 
 namespace nlsr {
 
@@ -783,6 +784,7 @@ Lsdb::expressInterest(const ndn::Name& interestName, uint32_t timeoutCount,
                                                  this, _2, deadline, lsaName, seqNo),
                                        ndn::bind(&Lsdb::processInterestTimedOut,
                                                  this, _1, timeoutCount, deadline, lsaName, seqNo));
+  m_nlsr.getStatistics().countInterest('a');
 }
 
 void
@@ -841,10 +843,12 @@ Lsdb::processInterestForNameLsa(const ndn::Interest& interest,
                                 uint64_t seqNo)
 {
   NameLsa*  nameLsa = m_nlsr.getLsdb().findNameLsa(lsaKey);
+
   if (nameLsa != 0) {
     if (nameLsa->getLsSeqNo() == seqNo) {
       std::string content = nameLsa->getData();
       putLsaData(interest,content);
+      m_nlsr.getStatistics().countData('n');
     }
   }
 }
@@ -859,6 +863,7 @@ Lsdb::processInterestForAdjacencyLsa(const ndn::Interest& interest,
     if (adjLsa->getLsSeqNo() == seqNo) {
       std::string content = adjLsa->getData();
       putLsaData(interest,content);
+      m_nlsr.getStatistics().countData('a');
     }
   }
 }
@@ -873,6 +878,7 @@ Lsdb::processInterestForCoordinateLsa(const ndn::Interest& interest,
     if (corLsa->getLsSeqNo() == seqNo) {
       std::string content = corLsa->getData();
       putLsaData(interest,content);
+      m_nlsr.getStatistics().countData('c');
     }
   }
 }
@@ -933,12 +939,15 @@ Lsdb::onContentValidated(const ndn::shared_ptr<const ndn::Data>& data)
 
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processContentNameLsa(originRouter.append(interestedLsType), seqNo, dataContent);
+      m_nlsr.getStatistics().countData('n');
     }
     else if (interestedLsType == AdjLsa::TYPE_STRING) {
       processContentAdjacencyLsa(originRouter.append(interestedLsType), seqNo, dataContent);
+      m_nlsr.getStatistics().countData('a');
     }
     else if (interestedLsType == CoordinateLsa::TYPE_STRING) {
       processContentCoordinateLsa(originRouter.append(interestedLsType), seqNo, dataContent);
+      m_nlsr.getStatistics().countData('c');
     }
     else {
       _LOG_WARN("Received unrecognized LSA Type: " << interestedLsType);

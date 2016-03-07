@@ -24,6 +24,7 @@
 
 #include "nlsr.hpp"
 
+#include "statistics.hpp"
 #include <ndn-cxx/management/nfd-face-event-notification.hpp>
 #include <ndn-cxx/util/dummy-client-face.hpp>
 
@@ -211,6 +212,8 @@ BOOST_FIXTURE_TEST_CASE(FaceDestroyEvent, UnitTestTimeFixture)
   // Make sure the routing table was recalculated
   rtEntry = nlsr.getRoutingTable().findRoutingTableEntry(failNeighbor.getName());
   BOOST_CHECK(rtEntry == nullptr);
+
+  nlsr.getStatistics().printStatistics();
 }
 
 // Bug #2733

@@ -69,6 +69,17 @@ NlsrRunner::run()
     m_nlsr.getFib().clean();
     m_nlsr.destroyFaces();
   }
+
+  _LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
+  _LOG_DEBUG("Hello Interest" << m_nlsr.getStatistics().getHelloInt());
+  _LOG_DEBUG("Hello Data " << m_nlsr.getStatistics().getHelloData());
+  _LOG_DEBUG("Sync Interest" << m_nlsr.getStatistics().getSyncInt());
+  _LOG_DEBUG("Re Sync Interest" << m_nlsr.getStatistics().getReSyncInt());
+  _LOG_DEBUG("Sync Data" << m_nlsr.getStatistics().getSyncData());
+  _LOG_DEBUG("LSA Interest" << m_nlsr.getStatistics().getLSAInt());
+  _LOG_DEBUG("Adj Data" << m_nlsr.getStatistics().getAdjData());
+  _LOG_DEBUG("Coord Data" << m_nlsr.getStatistics().getCoorData());
+  _LOG_DEBUG("Name Data" << m_nlsr.getStatistics().getNameData());
 }
 
 void

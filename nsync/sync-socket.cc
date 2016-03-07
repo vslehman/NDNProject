@@ -45,7 +45,8 @@ SyncSocket::SyncSocket (const Name &syncPrefix,
                         shared_ptr<Validator> validator,
                         shared_ptr<Face> face,
                         NewDataCallback dataCallback,
-                        RemoveCallback rmCallback )
+                        RemoveCallback rmCallback,
+                        nlsr::Statistics &stats)
   : m_newDataCallback(dataCallback)
   , m_validator(validator)
   , m_keyChain(new KeyChain())
@@ -54,7 +55,8 @@ SyncSocket::SyncSocket (const Name &syncPrefix,
                  validator,
                  face,
                  bind(&SyncSocket::passCallback, this, _1),
-                 rmCallback)
+                 rmCallback,
+                 stats)
 {
 }
 

@@ -26,6 +26,7 @@
 #include "sync-full-leaf.h"
 #include "sync-logging.h"
 #include "sync-state.h"
+#include "../src/statistics.hpp"
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -73,7 +74,8 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
                       shared_ptr<Validator> validator,
                       shared_ptr<Face> face,
                       LogicUpdateCallback onUpdate,
-                      LogicRemoveCallback onRemove)
+                      LogicRemoveCallback onRemove,
+                      nlsr::Statistics &stats)
   : m_state (new FullState)
   , m_syncInterestTable (face->getIoService(), ndn::time::seconds(m_syncInterestReexpress))
   , m_syncPrefix (syncPrefix)
@@ -88,6 +90,7 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
   , m_rangeUniformRandom (m_randomGenerator, boost::uniform_int<> (200,1000))
   , m_reexpressionJitter (m_randomGenerator, boost::uniform_int<> (100,500))
   , m_recoveryRetransmissionInterval (m_defaultRecoveryRetransmitInterval)
+  , m_stats(stats)
 {
   m_syncRegisteredPrefixId = m_face->setInterestFilter (m_syncPrefix,
                                                         bind(&SyncLogic::onSyncInterest,
@@ -107,7 +110,8 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
 SyncLogic::SyncLogic (const Name& syncPrefix,
                       shared_ptr<Validator> validator,
                       shared_ptr<Face> face,
-                      LogicPerBranchCallback onUpdateBranch)
+                      LogicPerBranchCallback onUpdateBranch,
+                      nlsr::Statistics &stats)
   : m_state (new FullState)
   , m_syncInterestTable (face->getIoService(), ndn::time::seconds (m_syncInterestReexpress))
   , m_syncPrefix (syncPrefix)
@@ -121,6 +125,7 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
   , m_rangeUniformRandom (m_randomGenerator, boost::uniform_int<> (200,1000))
   , m_reexpressionJitter (m_randomGenerator, boost::uniform_int<> (100,500))
   , m_recoveryRetransmissionInterval (m_defaultRecoveryRetransmitInterval)
+  , m_stats(stats)
 {
   m_syncRegisteredPrefixId = m_face->setInterestFilter (m_syncPrefix,
                                                         bind(&SyncLogic::onSyncInterest,
@@ -625,6 +630,8 @@ SyncLogic::sendSyncInterest ()
   m_face->expressInterest(interest,
                           bind(&SyncLogic::onSyncData, this, _1, _2),
                           bind(&SyncLogic::onSyncTimeout, this, _1));
+
+  m_stats.countInterest('s');
 }
 
 void
@@ -653,6 +660,7 @@ SyncLogic::sendSyncRecoveryInterests (DigestConstPtr digest)
   m_face->expressInterest(interest,
                           bind(&SyncLogic::onSyncData, this, _1, _2),
                           bind(&SyncLogic::onSyncTimeout, this, _1));
+  m_stats.countInterest('r');//Add a new parameter to Statistics, differnet kind of interes
 }
 
 
@@ -662,6 +670,7 @@ SyncLogic::sendSyncData (const Name &name, DigestConstPtr digest, StateConstPtr 
   SyncStateMsg msg;
   msg << (*state);
   sendSyncData(name, digest, msg);
+  m_stats.countData('s');
 }
 
 // pass in state msg instead of state, so that there is no need to lock the state until

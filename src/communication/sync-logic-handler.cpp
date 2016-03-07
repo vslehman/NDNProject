@@ -138,7 +138,7 @@ SyncLogicHandler::SyncLogicHandler(ndn::Face& face,
 }
 
 void
-SyncLogicHandler::createSyncSocket(const ndn::Name& syncPrefix)
+SyncLogicHandler::createSyncSocket(const ndn::Name& syncPrefix, Statistics &stats)
 {
   if (m_syncSocket != nullptr) {
     _LOG_WARN("Trying to create Sync socket, but Sync socket already exists");
@@ -160,7 +160,8 @@ SyncLogicHandler::createSyncSocket(const ndn::Name& syncPrefix)
                                                     ndn::bind(&SyncLogicHandler::onNsyncUpdate,
                                                               this, _1, _2),
                                                     ndn::bind(&SyncLogicHandler::onNsyncRemoval,
-                                                              this, _1));
+                                                              this, _1),
+                                                    stats);
 }
 
 void

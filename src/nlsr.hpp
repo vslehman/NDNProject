@@ -49,6 +49,7 @@
 #include "security/certificate-store.hpp"
 #include "update/prefix-update-processor.hpp"
 #include "utility/name-helper.hpp"
+#include "statistics.hpp"
 
 
 namespace nlsr {
@@ -302,6 +303,12 @@ public:
     return m_firstHelloInterval;
   }
 
+  Statistics&
+  getStatistics()
+  {
+    return m_stats;
+  }
+
 PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   void
   addCertificateToCache(ndn::shared_ptr<ndn::IdentityCertificate> certificate)
@@ -368,6 +375,7 @@ private:
   SyncLogicHandler m_syncLogicHandler;
   HelloProtocol m_helloProtocol;
   LsdbDatasetInterestHandler m_lsdbDatasetHandler;
+  Statistics m_stats;
 
 private:
   ndn::shared_ptr<ndn::CertificateCacheTtl> m_certificateCache;

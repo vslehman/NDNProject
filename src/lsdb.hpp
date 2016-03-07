@@ -30,6 +30,7 @@
 #include "conf-parameter.hpp"
 #include "lsa.hpp"
 #include "test-access-control.hpp"
+#include "statistics.hpp"
 
 namespace nlsr {
 

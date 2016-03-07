@@ -37,6 +37,7 @@
 #include "sync-diff-state.h"
 #include "sync-full-state.h"
 #include "sync-std-name-info.h"
+#include "../src/statistics.hpp"
 
 #include "sync-diff-state-container.h"
 
@@ -79,12 +80,14 @@ public:
              ndn::shared_ptr<ndn::Validator> validator,
              ndn::shared_ptr<ndn::Face> face,
              LogicUpdateCallback onUpdate,
-             LogicRemoveCallback onRemove);
+             LogicRemoveCallback onRemove,
+             nlsr::Statistics &stats);
 
   SyncLogic (const ndn::Name& syncPrefix,
              ndn::shared_ptr<ndn::Validator> validator,
              ndn::shared_ptr<ndn::Face> face,
-             LogicPerBranchCallback onUpdateBranch);
+             LogicPerBranchCallback onUpdateBranch,
+             nlsr::Statistics &stats);
 
   ~SyncLogic ();
 
@@ -193,6 +196,7 @@ private:
   std::shared_ptr<ndn::KeyChain> m_keyChain;
   std::shared_ptr<ndn::Face> m_face;
   const ndn::RegisteredPrefixId* m_syncRegisteredPrefixId;
+  nlsr::Statistics &m_stats;
 
   ndn::Scheduler m_scheduler;
 

@@ -154,6 +154,9 @@ BOOST_AUTO_TEST_CASE(LsdbSync)
 
   // Interest should not be expressed for outdated sequence number
   BOOST_CHECK_EQUAL(interests.size(), 0);
+
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().getHelloData(), 1);
+  nlsr.getStatistics().printStatistics();
 }
 
 BOOST_AUTO_TEST_CASE(LsdbRemoveAndExists)
