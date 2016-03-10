@@ -70,6 +70,14 @@ NlsrRunner::run()
     m_nlsr.destroyFaces();
   }
 
+  	/*
+
+    STATISTICS COUNT
+
+	Data collection printed on file
+
+    */
+
   _LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
   _LOG_DEBUG("Hello Interest" << m_nlsr.getStatistics().getHelloInt());
   _LOG_DEBUG("Hello Data " << m_nlsr.getStatistics().getHelloData());

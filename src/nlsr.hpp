@@ -302,7 +302,13 @@ public:
   {
     return m_firstHelloInterval;
   }
+  /*
 
+    STATISTICS COUNT
+
+    Return method for the object m_stats
+
+   */
   Statistics&
   getStatistics()
   {
@@ -375,6 +381,13 @@ private:
   SyncLogicHandler m_syncLogicHandler;
   HelloProtocol m_helloProtocol;
   LsdbDatasetInterestHandler m_lsdbDatasetHandler;
+    /*
+
+    STATISTICS COUNT
+
+    Object for counting the stats
+
+    */
   Statistics m_stats;
 
 private:
