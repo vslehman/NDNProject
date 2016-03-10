@@ -69,6 +69,14 @@ NlsrRunner::run()
     m_nlsr.getFib().clean();
     m_nlsr.destroyFaces();
   }
+
+  	/*
+
+    STATISTICS COUNT
+	
+	Data collection printed on file
+
+    */
    
   _LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
   _LOG_DEBUG("Hello Interest" << m_nlsr.getStatistics().getHelloInt());

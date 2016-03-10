@@ -184,7 +184,11 @@ Nlsr::initialize()
   m_fib.setEntryRefreshTime(2 * m_confParam.getLsaRefreshTime());
   m_sequencingManager.setSeqFileName(m_confParam.getSeqFileDir());
   m_sequencingManager.initiateSeqNoFromFile();
+  /*
+      STATISTICS COUNT
 
+      Adding the stats for the syncLogic handler
+  */
   m_syncLogicHandler.createSyncSocket(m_confParam.getChronosyncPrefix(), m_stats);
 
   /* Logging start */

@@ -785,6 +785,13 @@ Lsdb::expressInterest(const ndn::Name& interestName, uint32_t timeoutCount,
                                                  this, _2, deadline, lsaName, seqNo),
                                        ndn::bind(&Lsdb::processInterestTimedOut,
                                                  this, _1, timeoutCount, deadline, lsaName, seqNo));
+  /*
+
+    STATISTICS COUNT
+
+    LSA interest
+
+  */
   m_nlsr.getStatistics().countInterest('a');
 }
 
@@ -844,13 +851,19 @@ Lsdb::processInterestForNameLsa(const ndn::Interest& interest,
                                 uint64_t seqNo)
 {
   NameLsa*  nameLsa = m_nlsr.getLsdb().findNameLsa(lsaKey);
+    /*
+
+    STATISTICS COUNT
+
+    Name data
+
+  */
   m_nlsr.getStatistics().countData('n');
   if (nameLsa != 0) {
     if (nameLsa->getLsSeqNo() == seqNo) {
       std::string content = nameLsa->getData();
 
       
-      //m_nlsr.getStatistics().countInterest();
       putLsaData(interest,content);
     }
   }
@@ -867,8 +880,15 @@ Lsdb::processInterestForAdjacencyLsa(const ndn::Interest& interest,
       std::string content = adjLsa->getData();
       
       
-      //m_nlsr.getStatistics().countInterest();
+      
       putLsaData(interest,content);
+      /*
+
+        STATISTICS COUNT
+
+        Adjendcy Data
+
+      */
       m_nlsr.getStatistics().countData('a');
     }
   }
@@ -888,6 +908,13 @@ Lsdb::processInterestForCoordinateLsa(const ndn::Interest& interest,
       
       //m_nlsr.getStatistics().countInterest();
       putLsaData(interest,content);
+      /*
+
+        STATISTICS COUNT
+
+        Coordinate Data
+
+      */
       m_nlsr.getStatistics().countData('c');
     }
   }
@@ -946,7 +973,11 @@ Lsdb::onContentValidated(const ndn::shared_ptr<const ndn::Data>& data)
     string dataContent(reinterpret_cast<const char*>(data->getContent().value()));
 
     std::string interestedLsType  = dataName[-3].toUri();
+    /*
 
+    STATISTICS COUNT
+
+    */
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processContentNameLsa(originRouter.append(interestedLsType), seqNo, dataContent);
       m_nlsr.getStatistics().countData('n');

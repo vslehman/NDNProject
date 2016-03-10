@@ -1,4 +1,4 @@
-/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
+fa/* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
  * Copyright (c) 2014  University of Memphis,
  *                     Regents of the University of California
@@ -47,6 +47,13 @@ HelloProtocol::expressInterest(const ndn::Name& interestName, uint32_t seconds)
                                                  _1, _2),
                                        ndn::bind(&HelloProtocol::processInterestTimedOut,
                                                  this, _1));
+    /*
+
+    STATISTICS COUNT
+
+    Hello interest
+
+    */
   m_nlsr.getStatistics().countInterest('h');
 }
 
@@ -86,6 +93,13 @@ void
 HelloProtocol::processInterest(const ndn::Name& name,
                                const ndn::Interest& interest)
 {
+  /*
+
+    STATISTICS COUNT
+
+    Data interest
+
+  */
   m_nlsr.getStatistics().countData('h');
   /* interest name: /<neighbor>/NLSR/INFO/<router> */
   const ndn::Name interestName = interest.getName();

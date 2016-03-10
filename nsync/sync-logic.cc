@@ -70,7 +70,13 @@ int SyncLogic::m_instanceCounter = 0;
 
 const int SyncLogic::m_syncResponseFreshness = 1000; // MUST BE dividable by 1000!!!
 const int SyncLogic::m_syncInterestReexpress = 4; // seconds
+/*
 
+  STATISTICS COUNT
+  
+  Addint Stats to the constructors
+
+*/
 SyncLogic::SyncLogic (const Name& syncPrefix,
                       shared_ptr<Validator> validator,
                       shared_ptr<Face> face,
@@ -107,7 +113,13 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
 
   m_instanceId = string("Instance " + boost::lexical_cast<string>(m_instanceCounter++) + " ");
 }
+/*
 
+  STATISTICS COUNT
+  
+  Addint Stats to the constructors
+
+*/
 SyncLogic::SyncLogic (const Name& syncPrefix,
                       shared_ptr<Validator> validator,
                       shared_ptr<Face> face,
@@ -632,7 +644,13 @@ SyncLogic::sendSyncInterest ()
                           bind(&SyncLogic::onSyncData, this, _1, _2),
                           bind(&SyncLogic::onSyncTimeout, this, _1));
 
+  /*
+
+  STATISTICS COUNT
   
+  Counting SyncInterest
+
+*/
   m_stats.countInterest('s');
 }
 
@@ -662,6 +680,13 @@ SyncLogic::sendSyncRecoveryInterests (DigestConstPtr digest)
   m_face->expressInterest(interest,
                           bind(&SyncLogic::onSyncData, this, _1, _2),
                           bind(&SyncLogic::onSyncTimeout, this, _1));
+  /*
+
+  STATISTICS COUNT
+  
+  counting ReSync interest
+
+*/
   m_stats.countInterest('r');//Add a new parameter to Statistics, differnet kind of interes
 }
 
@@ -672,6 +697,13 @@ SyncLogic::sendSyncData (const Name &name, DigestConstPtr digest, StateConstPtr 
   SyncStateMsg msg;
   msg << (*state);
   sendSyncData(name, digest, msg);
+  /*
+
+  STATISTICS COUNT
+  
+  Counting SyncData
+
+*/
   m_stats.countData('s');
 }
 
