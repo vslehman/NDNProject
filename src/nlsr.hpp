@@ -69,6 +69,8 @@ class Nlsr
   };
 
 public:
+  HelloProtocol &getHelloProtocol(){return m_helloProtocol;}
+
   Nlsr(boost::asio::io_service& ioService, ndn::Scheduler& scheduler, ndn::Face& face);
 
   void
@@ -309,7 +311,7 @@ public:
     Return method for the object m_stats
 
    */
-  Statistics 
+  Statistics &
   getStatistics()
   {
     return m_stats;

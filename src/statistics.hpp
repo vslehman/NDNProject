@@ -23,61 +23,62 @@
  #define NDN_STATISTICS_HPP
 
 
- #include <set>
- #include "statistics.hpp"
+ #include <map>
+ //#include "enum_stats.hpp"
 
- namespace nlsr {
- 	
+
+ namespace nlsr 
+{
+
  	class Statistics
  	{
- 	private:
-
-	//size_t nHelloData=0, nSyncData=0, nAdjData=0, nCoorData=0, nNameData=0;
- 	//size_t nHelloInt=0, nSyncInt=0, nAdjInt=0, nCoordInt=0, nNameInt=0;
-
-
+ 
  	public:
+ 		enum class PacketType
+ 		{
+ 		SENT_HELLO_INTEREST = 1,
+ 		RCV_HELLO_INTEREST,
+ 		SENT_HELLO_DATA,
+ 		RCV_HELLO_DATA,
+ 		SENT_SYNC_INTEREST,
+ 		SENT_RE_SYNC_INTEREST,
+ 		RCV_SYNC_INTEREST,
+ 		SENT_SYNC_DATA,
+ 		RCV_SYNC_DATA,
+ 		SENT_LSA_INTEREST,
+ 		SENT_LSA_ADJ_DATA,
+ 		SENT_LSA_COORD_DATA,
+ 		SENT_LSA_NAME_DATA,
+ 		RCV_LSA_INTEREST,
+ 		RCV_LSA_ADJ_DATA,
+ 		RCV_LSA_COORD_DATA,
+ 		RCV_LSA_NAME_DATA,
+ 		RCV_RE_SYNC_INTEREST
+
+ 	}; 
 
  		Statistics();
- 		
- 		void 
- 		countInterest(char);
- 		
- 		void 
- 		countData(char);
- 		
+ 		 		
  		void 
  		printStatistics();
 
+ 		/***** GETTERS *****/
  		size_t 
- 		getHelloData();
-
- 		size_t 
- 		getHelloInt();
-
-		size_t 
- 		getSyncInt();
-
- 		size_t 
- 		getReSyncInt();
-	
-		size_t 
- 		getSyncData();
-
-		size_t 
- 		getLSAInt();
-
-		size_t 
- 		getAdjData();
-	
-		size_t
-		getCoorData();
-
-		size_t
-		getNameData();
+ 		get(PacketType);
 		
-		size_t
+		void
 		resetAll();
+
+		/***** SETTERS *****/
+
+ 		void 
+ 		increment(PacketType);
+
+ 		
+	
+		private:
+
+	 		std::map<PacketType,int> m_packetCounter;
 
   	};
 
@@ -85,6 +86,6 @@
 	operator<<(std::ostream&, const Statistics& );
   	//Statistics stats;
 
- }
+}
 
  #endif

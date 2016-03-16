@@ -792,12 +792,21 @@ Lsdb::expressInterest(const ndn::Name& interestName, uint32_t timeoutCount,
     LSA interest
 
   */
-  m_nlsr.getStatistics().countInterest('a');
+  m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_INTEREST);
 }
 
 void
 Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
 {
+   /*
+
+    STATISTICS COUNT
+
+    LSA interest
+
+  */
+  m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_LSA_INTEREST);
+
   const ndn::Name& interestName(interest.getName());
   _LOG_DEBUG("Interest received for LSA: " << interestName);
 
@@ -805,7 +814,7 @@ Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
   int32_t lsaPosition = util::getNameComponentPosition(interest.getName(), chkString);
 
   if (lsaPosition >= 0) {
-
+    std::cout << "\n putting DAta \n" << std::endl;
     ndn::Name originRouter = m_nlsr.getConfParameter().getNetwork();
     originRouter.append(interestName.getSubName(lsaPosition + 1,
                                                 interest.getName().size() - lsaPosition - 3));
@@ -814,6 +823,9 @@ Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
     _LOG_DEBUG("LSA sequence number from interest: " << seqNo);
 
     std::string interestedLsType = interestName[-2].toUri();
+    std::cout << interestedLsType << endl;
+
+  std::cout << interest.getName() << endl;
 
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processInterestForNameLsa(interest, originRouter.append(interestedLsType), seqNo);
@@ -858,14 +870,21 @@ Lsdb::processInterestForNameLsa(const ndn::Interest& interest,
     Name data
 
   */
-  m_nlsr.getStatistics().countData('n');
+  
   if (nameLsa != 0) {
     if (nameLsa->getLsSeqNo() == seqNo) {
       std::string content = nameLsa->getData();
 
-      
+      std::cout << "\n putting Data \n" << std::endl;
       putLsaData(interest,content);
+      m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_NAME_DATA);
+      
+    }else{
+      std::cout << "\n seqNo != \n" << std::endl;
     }
+  }else
+  {
+    std::cout << "\n didn't find \n" << std::endl;
   }
 }
 
@@ -889,7 +908,7 @@ Lsdb::processInterestForAdjacencyLsa(const ndn::Interest& interest,
         Adjendcy Data
 
       */
-      m_nlsr.getStatistics().countData('a');
+      m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_ADJ_DATA);
     }
   }
 }
@@ -905,8 +924,6 @@ Lsdb::processInterestForCoordinateLsa(const ndn::Interest& interest,
       std::string content = corLsa->getData();
       
       //std::cout<<"hello" << std::endl;
-      
-      //m_nlsr.getStatistics().countInterest();
       putLsaData(interest,content);
       /*
 
@@ -915,7 +932,7 @@ Lsdb::processInterestForCoordinateLsa(const ndn::Interest& interest,
         Coordinate Data
 
       */
-      m_nlsr.getStatistics().countData('c');
+      m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_COORD_DATA);
     }
   }
 }
@@ -977,18 +994,20 @@ Lsdb::onContentValidated(const ndn::shared_ptr<const ndn::Data>& data)
 
     STATISTICS COUNT
 
+    DATA RCV
+
     */
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processContentNameLsa(originRouter.append(interestedLsType), seqNo, dataContent);
-      m_nlsr.getStatistics().countData('n');
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_LSA_NAME_DATA);
     }
     else if (interestedLsType == AdjLsa::TYPE_STRING) {
       processContentAdjacencyLsa(originRouter.append(interestedLsType), seqNo, dataContent);
-      m_nlsr.getStatistics().countData('a');
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_LSA_ADJ_DATA);
     }
     else if (interestedLsType == CoordinateLsa::TYPE_STRING) {
       processContentCoordinateLsa(originRouter.append(interestedLsType), seqNo, dataContent);
-      m_nlsr.getStatistics().countData('c');
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_LSA_COORD_DATA);
     }
     else {
       _LOG_WARN("Received unrecognized LSA Type: " << interestedLsType);

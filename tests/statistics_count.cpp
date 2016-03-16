@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE(HelloData)
 {
 	std::shared_ptr<ndn::util::DummyClientFace> face = std::make_shared<ndn::util::DummyClientFace>();
 	Nlsr nlsr(g_ioService, g_scheduler, ndn::ref(*face));
-	HelloProtocol hello(nlsr, g_scheduler);
+	HelloProtocol& hello = nlsr.getHelloProtocol();
 
 
 	ConfParameter& conf = nlsr.getConfParameter();
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE(HelloData)
 
   BOOST_CHECK_EQUAL(face->sentData.size(), 0);
 
-  nlsr.getStatistics().resetAll();
+  //nlsr.getStatistics().resetAll();
 
   ndn::Interest interest(name);
   hello.processInterest(ndn::Name(), interest);
@@ -75,12 +75,15 @@ BOOST_AUTO_TEST_CASE(HelloData)
 
   BOOST_CHECK_EQUAL(face->sentData.size(), 1);
 
-  //hello.expressInterest(name, 1);
-  //face->processEvents(ndn::time::milliseconds(1));
+  hello.expressInterest(name, 1);
+  face->processEvents(ndn::time::milliseconds(1));
 
   //std::vector<ndn::Interest>& interests = face->sentInterests;(
 
-  BOOST_CHECK_EQUAL(nlsr.getStatistics().getHelloData(), 1);
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_INTEREST), 1);
+  
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::RCV_HELLO_INTEREST), 1);
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_DATA), 1);
 
   nlsr.getStatistics().printStatistics();
 }
