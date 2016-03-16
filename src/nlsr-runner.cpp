@@ -78,16 +78,29 @@ NlsrRunner::run()
 
     */
 
-  _LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
-  _LOG_DEBUG("Hello Interest" << m_nlsr.getStatistics().getHelloInt());
-  _LOG_DEBUG("Hello Data " << m_nlsr.getStatistics().getHelloData());
-  _LOG_DEBUG("Sync Interest" << m_nlsr.getStatistics().getSyncInt());
-  _LOG_DEBUG("Re Sync Interest" << m_nlsr.getStatistics().getReSyncInt());
-  _LOG_DEBUG("Sync Data" << m_nlsr.getStatistics().getSyncData());
-  _LOG_DEBUG("LSA Interest" << m_nlsr.getStatistics().getLSAInt());
-  _LOG_DEBUG("Adj Data" << m_nlsr.getStatistics().getAdjData());
-  _LOG_DEBUG("Coord Data" << m_nlsr.getStatistics().getCoorData());
-  _LOG_DEBUG("Name Data" << m_nlsr.getStatistics().getNameData());
+  //_LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
+  /*
+  _LOG_DEBUG("\nHello Interest " << m_nlsr.getStatistics().getSentHelloInt());
+  _LOG_DEBUG("\nHello Data " << m_nlsr.getStatistics().getSentHelloData());
+  _LOG_DEBUG("\nSync Interest " << m_nlsr.getStatistics().getSyncInt());
+  _LOG_DEBUG("\nRe Sync Interest " << m_nlsr.getStatistics().getReSyncInt());
+  _LOG_DEBUG("\nSync Data " << m_nlsr.getStatistics().getSentSyncData());
+  _LOG_DEBUG("\nLSA Interest " << m_nlsr.getStatistics().getSentLSAInt());
+  _LOG_DEBUG("\nAdj Data " << m_nlsr.getStatistics().getSentAdjData());
+  _LOG_DEBUG("\nCoord Data " << m_nlsr.getStatistics().getSentCoorData());
+  _LOG_DEBUG("\nName Data " << m_nlsr.getStatistics().getSentNameData());
+
+  _LOG_DEBUG("\n\nHello Interest " << m_nlsr.getStatistics().getRcvHelloInt());
+  _LOG_DEBUG("\nHello Data " << m_nlsr.getStatistics().getRcvHelloData());
+  _LOG_DEBUG("\nSync Interest " << m_nlsr.getStatistics().getRcvSyncInt());
+
+  _LOG_DEBUG("\nSync Data " << m_nlsr.getStatistics().getRcvSyncData());
+  _LOG_DEBUG("\nLSA Interest " << m_nlsr.getStatistics().getRcvLSAInt());
+  _LOG_DEBUG("\nAdj Data " << m_nlsr.getStatistics().getRcvAdjData());
+  _LOG_DEBUG("\nCoord Data " << m_nlsr.getStatistics().getRcvCoorData());
+  _LOG_DEBUG("\nName Data " << m_nlsr.getStatistics().getRcvNameData());
+
+  _LOG_DEBUG("\nERROR " << m_nlsr.getStatistics().getError());*/
 }
 
 void

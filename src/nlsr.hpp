@@ -69,6 +69,8 @@ class Nlsr
   };
 
 public:
+  HelloProtocol &getHelloProtocol(){return m_helloProtocol;}
+
   Nlsr(boost::asio::io_service& ioService, ndn::Scheduler& scheduler, ndn::Face& face);
 
   void

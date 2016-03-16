@@ -197,6 +197,8 @@ SyncLogic::onSyncInterest (const Name& prefix, const ndn::Interest& interest)
 
   _LOG_DEBUG_ID("respondSyncInterest: " << name);
 
+
+
   try
     {
       _LOG_DEBUG_ID ("<< I " << name);
@@ -208,10 +210,12 @@ SyncLogic::onSyncInterest (const Name& prefix, const ndn::Interest& interest)
       if (type == "normal") // kind of ineffective...
         {
           processSyncInterest (name, digest);
+          m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_INTEREST);
         }
       else if (type == "recovery")
         {
           processSyncRecoveryInterest (name, digest);
+          m_stats.increment(nlsr::Statistics::PacketType::RCV_RE_SYNC_INTEREST);
         }
     }
   catch (Error::DigestCalculationError &e)
@@ -297,7 +301,6 @@ SyncLogic::processSyncInterest (const Name &name, DigestConstPtr digest,
   {
     rootDigest = m_state->getDigest();
   }
-
   // Special case when state is not empty and we have received request with zero-root digest
   if (digest->isZero () && !rootDigest->isZero ())
     {
@@ -360,7 +363,11 @@ SyncLogic::processSyncData (const Name &name, DigestConstPtr digest,
 {
   DiffStatePtr diffLog = make_shared<DiffState> ();
   bool ownInterestSatisfied = false;
-
+  /*
+    nlsr::Statistics
+    DATA RECEIVED
+  */
+  m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_DATA);
   try
     {
 
@@ -650,7 +657,7 @@ SyncLogic::sendSyncInterest ()
   Counting SyncInterest
 
   */
-  m_stats.countInterest('s');
+  m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_INTEREST);
 }
 
 void
@@ -686,7 +693,7 @@ SyncLogic::sendSyncRecoveryInterests (DigestConstPtr digest)
   counting ReSync interest
 
 */
-  m_stats.countInterest('r');//Add a new parameter to Statistics, differnet kind of interes
+  m_stats.increment(nlsr::Statistics::PacketType::SENT_RE_SYNC_INTEREST);//Add a new parameter to Statistics, differnet kind of interes
 }
 
 
@@ -703,7 +710,7 @@ SyncLogic::sendSyncData (const Name &name, DigestConstPtr digest, StateConstPtr 
   Counting SyncData
 
 */
-  m_stats.countData('s');
+  m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_DATA);
 }
 
 // pass in state msg instead of state, so that there is no need to lock the state until

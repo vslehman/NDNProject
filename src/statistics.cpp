@@ -28,122 +28,95 @@
 
 namespace nlsr
 {
-	//size_t nHelloData, nSyncData, nAdjData, nCoorData, nNameData;
- 	//size_t nHelloInt, nSyncInt, nAdjInt, nCoordInt, nNameInt;
- 	size_t nHelloData=0, nSyncData=0, nAdjData=0, nCoorData=0, nNameData=0;
- 	size_t nHelloInt=0, nSyncInt=0, nLSAInt=0, nReSyncInt=0;
+ 	
  	Statistics::Statistics()
  	{
- 		/*nHelloInt = 0;
- 		nSyncInt = 0;
- 		nAdjInt = 0;
- 		nCoordInt = 0;
- 		nNameInt = 0;
- 		nHelloData = 0;
- 		nSyncData = 0;
- 		nAdjData = 0;
- 		nCoorData = 0;
- 		nNameData = 0;*/
+ 
  	}
 
-	void
-	Statistics::countInterest(char type)
-	{
-		//nHelloData = nHelloData + 1;
-		switch(type)
-		{
-			case 'H':
-			case 'h':
-				nHelloInt++;
-				break;
-			case 'S':
-			case 's':
-				nSyncInt++;
-				break;
-			case 'A':
-			case 'a':
-				nLSAInt++;
-				break;
-			case 'R':
-			case 'r':
-				nReSyncInt++;
-				break;
-			default:
-				std::cout<<"Incorrect argument, no interest count" << std::endl;
-				break;
-		}
+	
 
-	}
-
-	void
-	Statistics::countData(char type)
-	{
-		//nHelloData = nHelloData + 1;
-
-		switch(type)
-		{
-			case 'H':
-			case 'h':
-				nHelloData++;
-				break;
-			case 'S':
-			case 's':
-				nSyncData++;
-				break;
-			case 'A':
-			case 'a':
-				nAdjData++;
-				break;
-			case 'C':
-			case 'c':
-				nCoorData++;
-				break;			
-			case 'N':
-			case 'n':
-				nNameData++;
-				break;			
-			default:
-				std::cout<<"Incorrect argument, no interest count" << std::endl;
-				break;
-		}
-	}
 
 	void
 	Statistics::printStatistics()
 	{
-		std::cout 	<< "\n++++++++++++++++++++++++++++++++++++++++\n" 
+		std::cout 	<<"\n++++++++++++++++++++++++++++++++++++++++\n" 
 					<< "+                                      +\n"
 					<< "+              Statistics              +\n"
 					<< "+                                      +\n"
-					<< "++++++++++++++++++++++++++++++++++++++++\n\n"
-					<< "Interest:\n"
-					<< "\tHello Interests: " << nHelloInt << "\n"
-					<< "\tSync Interests: " << nSyncInt << "\n"
-					<< "\tReSync Interests: " << nReSyncInt << "\n"
-					<< "\tLSA Interests: " << nLSAInt << "\n"
-					<< "Data:\n"
-					<< "\tHello Data: " << nHelloData << "\n"
-					<< "\tSync Data: " << nSyncData << "\n"
-					<< "\tAdj Data: " << nAdjData << "\n"
-					<< "\tCoord Data: " << nCoorData << "\n"
-					<< "\tName Data: " << nNameData << "\n\n"
-					<< "Total Interest: " << nHelloInt + nSyncInt + nLSAInt << "\n"
-					<< "Total Data: " << nHelloData + nSyncData + nAdjData + nCoorData + nNameData << std::endl;
-
+					<< "++++++++++++++++++++++++++++++++++++++++\n+\n"
+					<< "+ SENT DATA:\n"
+					<< "+ Interest:\n"
+					<< "+\tHello Interests: " << m_packetCounter[PacketType::SENT_HELLO_INTEREST]<< "\n"
+					<< "+\tSync Interests: " << m_packetCounter[PacketType::SENT_SYNC_INTEREST] << "\n"
+					<< "+\tReSync Interests: " << m_packetCounter[PacketType::SENT_RE_SYNC_INTEREST] << "\n"
+					<< "+\tLSA Interests: " << m_packetCounter[PacketType::SENT_LSA_INTEREST] << "\n"
+					<< "+ Data:\n"
+					<< "+\tHello Data: " << m_packetCounter[PacketType::SENT_HELLO_DATA] << "\n"
+					<< "+\tSync Data: " << m_packetCounter[PacketType::SENT_HELLO_DATA] << "\n"
+					<< "+\tAdj Data: " << m_packetCounter[PacketType::SENT_LSA_ADJ_DATA]<< "\n"
+					<< "+\tCoord Data: " << m_packetCounter[PacketType::SENT_LSA_COORD_DATA] << "\n"
+					<< "+\tName Data: " << m_packetCounter[PacketType::SENT_LSA_NAME_DATA]<< "\n\n"
+					//<< "+ Total Interest: " << m_packetCounter[0) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[) << "\n"
+					//<< "+ Total Data: " << m_packetCounter[0)() + m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[)
+					<< "\n+\n RECEIVED DATA:\n"
+					<< "+ Interest:\n"
+					<< "+\tHello Interests: " << m_packetCounter[PacketType::RCV_HELLO_INTEREST]<< "\n"
+					<< "+\tSync Interests: " << m_packetCounter[PacketType::RCV_SYNC_INTEREST] << "\n"
+					<< "+\tReSync Interests: " << m_packetCounter[PacketType::RCV_RE_SYNC_INTEREST] << "\n"
+					<< "+\tLSA Interests: " << m_packetCounter[PacketType::RCV_LSA_INTEREST] << "\n"
+					<< "+ Data:\n"
+					<< "+\tHello Data: " << m_packetCounter[PacketType::RCV_HELLO_DATA] << "\n"
+					<< "+\tSync Data: " << m_packetCounter[PacketType::RCV_HELLO_DATA] << "\n"
+					<< "+\tAdj Data: " << m_packetCounter[PacketType::RCV_LSA_ADJ_DATA]<< "\n"
+					<< "+\tCoord Data: " << m_packetCounter[PacketType::RCV_LSA_COORD_DATA] << "\n"
+					<< "+\tName Data: " << m_packetCounter[PacketType::RCV_LSA_NAME_DATA]<< "\n\n"
+					//<< "+ Total Interest: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) << "\n"
+					//<< "+ Total Data: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[)
+					<< "\n++++++++++++++++++++++++++++++++++++++++++\n";
 	}
 
-	/*size_t 
- 	Statistics::getHelloInt()
-	{
-		return nHelloInt;
-	}*/
+
 
 	size_t 
- 	Statistics::getHelloData()
+ 	Statistics::get(PacketType type)
 	{
-		return nHelloData;
+		std::map<PacketType,int>::iterator it = m_packetCounter.find(type);
+		if(it != m_packetCounter.end())
+		{
+			return it->second;
+		}
+		else
+		{
+			return 0;
+		}
 	}
-	
+	void
+	Statistics::increment (PacketType type)
+	{
+	  int &value = m_packetCounter[type];
+	  ++value;
+		/*std::map<PacketType,int>::iterator it = m_packetCounter.find(type);
+		if(it != m_packetCounter.end())
+		{
+			++(it->second);
+		}
+		else
+		{
+			std::cout << "Trace INCREMENT RCV_HELLO_INTEREST" << std::endl;
+			m_packetCounter[type] = 1;
+		}*/
+	}
+
+	void
+	Statistics::resetAll()
+	{
+		for( auto& it : m_packetCounter )
+		{
+			it.second = 0;
+		}
+	}
+	/*
 	std::ostream&
 	operator<<(std::ostream& os, const Statistics& stats)
 	{
@@ -153,76 +126,40 @@ namespace nlsr
 					<< "+              Statistics              +\n"
 					<< "+                                      +\n"
 					<< "++++++++++++++++++++++++++++++++++++++++\n+\n"
+					<< "+ SENT DATA:\n"
 					<< "+ Interest:\n"
-					<< "+\tHello Interests: " << nHelloInt << "\n"
-					<< "+\tSync Interests: " << nSyncInt << "\n"
-					<< "\tReSync Interests: " << nReSyncInt << "\n"
-					<< "+\tLSA Interests: " << nLSAInt << "\n"
+					<< "+\tHello Interests: " << getSentHelloInt() << "\n"
+					<< "+\tSync Interests: " << getSyncInt() << "\n"
+					<< "\tReSync Interests: " << getReSyncInt() << "\n"
+					<< "+\tLSA Interests: " << getSentLSAInt() << "\n"
 					<< "+ Data:\n"
-					<< "+\tHello Data: " << nHelloData << "\n"
-					<< "+\tSync Data: " << nSyncData << "\n"
-					<< "+\tAdj Data: " << nAdjData << "\n"
-					<< "+\tCoord Data: " << nCoorData << "\n"
-					<< "+\tName Data: " << nNameData << "\n\n"
-					<< "+ Total Interest: " << nHelloInt + nSyncInt + nLSAInt << "\n"
-					<< "+ Total Data: " << nHelloData + nSyncData + nAdjData + nCoorData + nNameData
+					<< "+\tHello Data: " << getSentHelloData() << "\n"
+					<< "+\tSync Data: " << getSentSyncData() << "\n"
+					<< "+\tAdj Data: " << getSentAdjData() << "\n"
+					<< "+\tCoord Data: " << getSentCoorData() << "\n"
+					<< "+\tName Data: " << getSentNameData() << "\n\n"
+					<< "+ Total Interest: " << getSentHelloInt() + getSyncInt() + getReSyncInt() + getSentLSAInt() << "\n"
+					<< "+ Total Data: " << getSentHelloData() + getSentSyncData() + getSentAdjData() + getSentCoorData() + getSentNameData()
+					<< "+\n+\n+ RECEIVED DATA:\n"
+					<< "+ Interest:\n"
+					<< "+\tHello Interests: " << getRcvHelloInt() << "\n"
+					<< "+\tSync Interests: " << getRcvSyncInt() << "\n"
+					<< "+\tLSA Interests: " << getRcvLSAInt() << "\n"
+					<< "+ Data:\n"
+					<< "+\tHello Data: " << getRcvHelloData() << "\n"
+					<< "+\tSync Data: " << getRcvSyncData() << "\n"
+					<< "+\tAdj Data: " << getRcvAdjData() << "\n"
+					<< "+\tCoord Data: " << getRcvCoorData() << "\n"
+					<< "+\tName Data: " << getRcvNameData() << "\n\n"
+					<< "+ Total Interest: " << getRcvHelloInt() + getRcvSyncInt() + getRcvLSAInt() << "\n"
+					<< "+ Total Data: " << getRcvHelloData() + getRcvSyncData() + getRcvAdjData() + getRcvCoorData() + getRcvNameData()
 					<< "\n++++++++++++++++++++++++++++++++++++++++++\n";
 
 	  return os;
 	}
+*/
 
-	size_t 
- 	Statistics::getHelloInt()
-	{
-		return nHelloInt;
-	}
+	
 
-	size_t 
- 	Statistics::getSyncInt()
-	{
-		return nSyncInt;
-	}
 
-	size_t 
- 	Statistics::getReSyncInt()
- 	{
- 		return nReSyncInt;
- 	}
-	
-	size_t 
- 	Statistics::getSyncData()
-	{
-		return nSyncData;
-	}
-	
-	size_t 
- 	Statistics::getLSAInt()
-	{
-		return nLSAInt;
-	}
-	
-	size_t 
- 	Statistics::getAdjData()
-	{
-		return nAdjData;
-	}
-	
-	size_t
-	Statistics::getCoorData()
-	{
-		return nCoorData;
-	}
-	
-	size_t
-	Statistics::getNameData()
-	{
-		return nNameData;
-	}
-
-	size_t
-	Statistics::resetAll()
-	{
-	nHelloData=0; nSyncData=0; nAdjData=0; nCoorData=0; nNameData=0;
- 	nHelloInt=0; nSyncInt=0; nLSAInt=0; nReSyncInt=0;
-	}
 }//namespace nlsr

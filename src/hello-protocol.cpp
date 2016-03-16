@@ -54,7 +54,7 @@ HelloProtocol::expressInterest(const ndn::Name& interestName, uint32_t seconds)
     Hello interest
 
     */
-  m_nlsr.getStatistics().countInterest('h');
+  m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_HELLO_INTEREST);
 }
 
 void
@@ -100,13 +100,17 @@ HelloProtocol::processInterest(const ndn::Name& name,
     Data interest
 
   */
-  m_nlsr.getStatistics().countData('h');
+  
   /* interest name: /<neighbor>/NLSR/INFO/<router> */
   const ndn::Name interestName = interest.getName();
   _LOG_DEBUG("Interest Received for Name: " << interestName);
   if (interestName.get(-2).toUri() != INFO_COMPONENT) {
     return;
   }
+
+  std::cout << "Trace RCV_HELLO_INTEREST" << std::endl;
+  m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_HELLO_INTEREST);
+
   ndn::Name neighbor;
   neighbor.wireDecode(interestName.get(-1).blockFromValue());
   _LOG_DEBUG("Neighbor: " << neighbor);
@@ -120,6 +124,8 @@ HelloProtocol::processInterest(const ndn::Name& name,
     _LOG_DEBUG("Sending out data for name: " << interest.getName());
     m_nlsr.getNlsrFace().put(*data);
 
+    //m_nlsr.getStatistics().setSentHelloData(m_nlsr.getStatistics().getSentHelloData() + 1);
+    m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_HELLO_DATA);
     Adjacent *adjacent = m_nlsr.getAdjacencyList().findAdjacent(neighbor);
     if (adjacent->getStatus() == Adjacent::STATUS_INACTIVE) {
       if(adjacent->getFaceId() != 0){
@@ -178,6 +184,10 @@ HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
 void
 HelloProtocol::onContent(const ndn::Interest& interest, const ndn::Data& data)
 {
+  /*STATISTICS COUNT
+
+  RECEIVE DATA*/
+  m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_HELLO_DATA);
   _LOG_DEBUG("Received data for INFO(name): " << data.getName());
   if (data.getSignature().hasKeyLocator()) {
     if (data.getSignature().getKeyLocator().getType() == ndn::KeyLocator::KeyLocator_Name) {
