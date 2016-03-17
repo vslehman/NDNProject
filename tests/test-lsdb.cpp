@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(LsdbRemoveAndExists)
 
   std::string s1 = "name1";
   std::string s2 = "name2";
-  std::string router1 = "router1/1";
+  ndn::Name routerName("/ndn/router1/1");
 
   npl1.insert(s1);
   npl1.insert(s2);
@@ -177,28 +177,28 @@ BOOST_AUTO_TEST_CASE(LsdbRemoveAndExists)
   //For NameLsa lsType is name.
   //12 is seqNo, randomly generated.
   //1800 is the default life time.
-  NameLsa nlsa1(ndn::Name("/router1/1"), NameLsa::TYPE_STRING, 12, testTimePoint, npl1);
+  NameLsa nlsa1(routerName, NameLsa::TYPE_STRING, 12, testTimePoint, npl1);
 
-  Lsdb lsdb1(nlsr, g_scheduler, nlsr.getSyncLogicHandler());
+  Lsdb& lsdb = nlsr.getLsdb();
 
-  lsdb1.installNameLsa(nlsa1);
-  lsdb1.writeNameLsdbLog();
+  lsdb.installNameLsa(nlsa1);
+  lsdb.writeNameLsdbLog();
 
-  //BOOST_CHECK(lsdb1.doesLsaExist(ndn::Name("/router1/1/name"), NameLsa::TYPE_STRING));
+  BOOST_CHECK(lsdb.doesLsaExist(nlsa1.getKey(), NameLsa::TYPE_STRING));
 
-  //lsdb1.removeNameLsa(router1);
+  // Receive Interest to trigger NLSR to send Data
+  ndn::Name interestName = ndn::Name("/ndn/NLSR/LSA/router1/1/name/").appendNumber(12);
 
-  //BOOST_CHECK_EQUAL(lsdb1.doesLsaExist(ndn::Name("/router1/1"), NameLsa::TYPE_STRING), false);
-
-  ndn::Name interestName = ndn::Name(nlsa1.getKey()).appendNumber(12);
-  std::cout << "\n Interest Name:" <<interestName << std::endl;
-  lsdb1.processInterest(ndn::Name(),ndn::Interest(interestName));
+  lsdb.processInterest(ndn::Name(),ndn::Interest(interestName));
   face->processEvents(ndn::time::milliseconds(1));
 
-  //BOOST_CHECK_EQUAL(lsdb1.doesLsaExist(ndn::Name("/router1/1"), NameLsa::TYPE_STRING), false);
-  //nlsr.getStatistics().printStatistics();
   BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_NAME_DATA), 1);
   nlsr.getStatistics().printStatistics();
+
+  // Remove the LSA and check to make sure it was removed
+  lsdb.removeNameLsa(nlsa1.getKey());
+
+  BOOST_CHECK_EQUAL(lsdb.doesLsaExist(nlsa1.getKey(), NameLsa::TYPE_STRING), false);
 }
 
 BOOST_AUTO_TEST_CASE(InstallNameLsa)

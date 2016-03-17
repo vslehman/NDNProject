@@ -813,7 +813,6 @@ Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
   int32_t lsaPosition = util::getNameComponentPosition(interest.getName(), chkString);
 
   if (lsaPosition >= 0) {
-    std::cout << "\n putting DAta \n" << std::endl;
     ndn::Name originRouter = m_nlsr.getConfParameter().getNetwork();
     originRouter.append(interestName.getSubName(lsaPosition + 1,
                                                 interest.getName().size() - lsaPosition - 3));
@@ -822,9 +821,6 @@ Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
     _LOG_DEBUG("LSA sequence number from interest: " << seqNo);
 
     std::string interestedLsType = interestName[-2].toUri();
-    std::cout << interestedLsType << endl;
-
-  std::cout << interest.getName() << endl;
 
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processInterestForNameLsa(interest, originRouter.append(interestedLsType), seqNo);
@@ -863,28 +859,20 @@ Lsdb::processInterestForNameLsa(const ndn::Interest& interest,
 {
   NameLsa*  nameLsa = m_nlsr.getLsdb().findNameLsa(lsaKey);
 
-    /*
-
-    STATISTICS COUNT
-
-    Name data
-
-  */
-
   if (nameLsa != 0) {
     if (nameLsa->getLsSeqNo() == seqNo) {
       std::string content = nameLsa->getData();
-
-      std::cout << "\n putting Data \n" << std::endl;
       putLsaData(interest,content);
+      /*
+
+        STATISTICS COUNT
+
+        Name data
+
+      */
       m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_NAME_DATA);
 
-    }else{
-      std::cout << "\n seqNo != \n" << std::endl;
     }
-  }else
-  {
-    std::cout << "\n didn't find \n" << std::endl;
   }
 }
 
