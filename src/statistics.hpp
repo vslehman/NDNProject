@@ -55,16 +55,16 @@
  		RCV_LSA_NAME_DATA,
  		RCV_RE_SYNC_INTEREST
 
- 	}; 
+	 	}; 
 
  		Statistics();
  		 		
- 		void 
+ 		void
  		printStatistics();
 
  		/***** GETTERS *****/
  		size_t 
- 		get(PacketType);
+ 		get(PacketType) const;
 		
 		void
 		resetAll();
@@ -74,6 +74,11 @@
  		void 
  		increment(PacketType);
 
+ 		const std::map<PacketType,int>&
+  		getCounter() const
+  		{
+  			return m_packetCounter;
+  		}
  		
 	
 		private:
@@ -85,6 +90,7 @@
   	std::ostream&
 	operator<<(std::ostream&, const Statistics& );
   	//Statistics stats;
+
 
 }
 

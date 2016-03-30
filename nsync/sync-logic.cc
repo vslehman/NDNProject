@@ -27,7 +27,6 @@
 #include "sync-logging.h"
 #include "sync-state.h"
 #include "../src/statistics.hpp"
-//#include "../src/nlsr-runner.hpp"
 
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>

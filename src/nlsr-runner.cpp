@@ -58,49 +58,77 @@ NlsrRunner::run()
   if (m_nlsr.getIsSetDaemonProcess()) {
     m_nlsr.daemonize();
   }
-
+ 
   try {
+    
     m_nlsr.startEventLoop();
+    
   }
   catch (std::exception& e) {
     _LOG_FATAL("ERROR: " << e.what());
     std::cerr << "ERROR: " << e.what() << std::endl;
 
+
     m_nlsr.getFib().clean();
     m_nlsr.destroyFaces();
   }
-
+  _LOG_INFO("After catch");
   	/*
 
     STATISTICS COUNT
 	
 	Data collection printed on file
 
+  SENT_HELLO_INTEREST = 1,
+  SENT_SYNC_INTEREST,
+  SENT_RE_SYNC_INTEREST,
+  SENT_LSA_INTEREST,
+
+  SENT_HELLO_DATA,
+  SENT_SYNC_DATA,
+  SENT_LSA_ADJ_DATA,
+  SENT_LSA_COORD_DATA,
+  SENT_LSA_NAME_DATA,
+  
+    RCV_HELLO_INTEREST,
+    RCV_SYNC_INTEREST,  
+    RCV_RE_SYNC_INTEREST,
+    RCV_LSA_INTEREST,
+
+    RCV_HELLO_DATA,
+    RCV_SYNC_DATA,
+    RCV_LSA_ADJ_DATA,
+    RCV_LSA_COORD_DATA,
+    RCV_LSA_NAME_DATA,
+    
+
     */
    
-  //_LOG_DEBUG("StatisticsCollection" << m_nlsr.getStatistics());
-  /*
-  _LOG_DEBUG("\nHello Interest " << m_nlsr.getStatistics().getSentHelloInt());
-  _LOG_DEBUG("\nHello Data " << m_nlsr.getStatistics().getSentHelloData());
-  _LOG_DEBUG("\nSync Interest " << m_nlsr.getStatistics().getSyncInt());
-  _LOG_DEBUG("\nRe Sync Interest " << m_nlsr.getStatistics().getReSyncInt());
-  _LOG_DEBUG("\nSync Data " << m_nlsr.getStatistics().getSentSyncData());
-  _LOG_DEBUG("\nLSA Interest " << m_nlsr.getStatistics().getSentLSAInt());
-  _LOG_DEBUG("\nAdj Data " << m_nlsr.getStatistics().getSentAdjData());
-  _LOG_DEBUG("\nCoord Data " << m_nlsr.getStatistics().getSentCoorData());
-  _LOG_DEBUG("\nName Data " << m_nlsr.getStatistics().getSentNameData());
+  _LOG_INFO("StatisticsCollection" << m_nlsr.getStatistics());
+  //m_nlsr.getStatistics().printStatistics();
 
-  _LOG_DEBUG("\n\nHello Interest " << m_nlsr.getStatistics().getRcvHelloInt());
-  _LOG_DEBUG("\nHello Data " << m_nlsr.getStatistics().getRcvHelloData());
-  _LOG_DEBUG("\nSync Interest " << m_nlsr.getStatistics().getRcvSyncInt());
+/*  
+  _LOG_INFO("\n\tHello Interest: " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_INTEREST));
+  _LOG_INFO("\n\tHello Data: " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_DATA));
+  _LOG_INFO("\n\tSync Interest: " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_SYNC_INTEREST));
+  _LOG_INFO("\n\tRe Sync Interest: " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_RE_SYNC_INTEREST));
+  _LOG_INFO("\n\tSync Data: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_SYNC_DATA));
+  _LOG_INFO("\n\tLSA Interest " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_INTEREST));
+  _LOG_INFO("\n\tAdj Data: " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_ADJ_DATA));
+  _LOG_INFO("\nCoord Data " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_COORD_DATA));
+  _LOG_INFO("\nName Data " << m_nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_NAME_DATA));
+
+  _LOG_INFO("\n\n\tHello Interest RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_HELLO_INTEREST));
+  _LOG_INFO("\n\tHello Data RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_HELLO_DATA));
+  _LOG_INFO("\n\tSync Interest RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_SYNC_INTEREST));
+  _LOG_INFO("\n\tRe Sync Interest RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_RE_SYNC_INTEREST));
+  _LOG_INFO("\n\tSync Data RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_SYNC_DATA));
+  _LOG_INFO("\n\tLSA Interest RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_LSA_INTEREST));
+  _LOG_INFO("\n\tAdj Data RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_LSA_ADJ_DATA));
+  _LOG_INFO("\n\tCoord Data RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_LSA_COORD_DATA));
+  _LOG_INFO("\n\tName Data RCV: " << m_nlsr.getStatistics().get(Statistics::PacketType::RCV_LSA_NAME_DATA));
+*/
   
-  _LOG_DEBUG("\nSync Data " << m_nlsr.getStatistics().getRcvSyncData());
-  _LOG_DEBUG("\nLSA Interest " << m_nlsr.getStatistics().getRcvLSAInt());
-  _LOG_DEBUG("\nAdj Data " << m_nlsr.getStatistics().getRcvAdjData());
-  _LOG_DEBUG("\nCoord Data " << m_nlsr.getStatistics().getRcvCoorData());
-  _LOG_DEBUG("\nName Data " << m_nlsr.getStatistics().getRcvNameData());
-
-  _LOG_DEBUG("\nERROR " << m_nlsr.getStatistics().getError());*/
 }
 
 void

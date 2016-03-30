@@ -790,8 +790,13 @@ Lsdb::expressInterest(const ndn::Name& interestName, uint32_t timeoutCount,
     STATISTICS COUNT
 
     LSA interest
+  
+    NameLsa::TYPE_STRING
+    if(interestName[-2].toUri() == "")
 
   */
+  
+  
   m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_INTEREST);
 }
 

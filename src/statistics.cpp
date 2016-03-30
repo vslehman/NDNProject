@@ -40,7 +40,8 @@ namespace nlsr
 	void
 	Statistics::printStatistics()
 	{
-		std::cout 	<<"\n++++++++++++++++++++++++++++++++++++++++\n" 
+		
+		std::cout   <<"\n++++++++++++++++++++++++++++++++++++++++\n" 
 					<< "+                                      +\n"
 					<< "+              Statistics              +\n"
 					<< "+                                      +\n"
@@ -53,7 +54,7 @@ namespace nlsr
 					<< "+\tLSA Interests: " << m_packetCounter[PacketType::SENT_LSA_INTEREST] << "\n"
 					<< "+ Data:\n"
 					<< "+\tHello Data: " << m_packetCounter[PacketType::SENT_HELLO_DATA] << "\n"
-					<< "+\tSync Data: " << m_packetCounter[PacketType::SENT_HELLO_DATA] << "\n"
+					<< "+\tSync Data: " << m_packetCounter[PacketType::SENT_SYNC_DATA] << "\n"
 					<< "+\tAdj Data: " << m_packetCounter[PacketType::SENT_LSA_ADJ_DATA]<< "\n"
 					<< "+\tCoord Data: " << m_packetCounter[PacketType::SENT_LSA_COORD_DATA] << "\n"
 					<< "+\tName Data: " << m_packetCounter[PacketType::SENT_LSA_NAME_DATA]<< "\n\n"
@@ -67,21 +68,22 @@ namespace nlsr
 					<< "+\tLSA Interests: " << m_packetCounter[PacketType::RCV_LSA_INTEREST] << "\n"
 					<< "+ Data:\n"
 					<< "+\tHello Data: " << m_packetCounter[PacketType::RCV_HELLO_DATA] << "\n"
-					<< "+\tSync Data: " << m_packetCounter[PacketType::RCV_HELLO_DATA] << "\n"
+					<< "+\tSync Data: " << m_packetCounter[PacketType::RCV_SYNC_DATA] << "\n"
 					<< "+\tAdj Data: " << m_packetCounter[PacketType::RCV_LSA_ADJ_DATA]<< "\n"
 					<< "+\tCoord Data: " << m_packetCounter[PacketType::RCV_LSA_COORD_DATA] << "\n"
 					<< "+\tName Data: " << m_packetCounter[PacketType::RCV_LSA_NAME_DATA]<< "\n\n"
 					//<< "+ Total Interest: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) << "\n"
 					//<< "+ Total Data: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[)
 					<< "\n++++++++++++++++++++++++++++++++++++++++++\n";
+		
 	}
 
 
 
 	size_t 
- 	Statistics::get(PacketType type)
+ 	Statistics::get(PacketType type) const
 	{
-		std::map<PacketType,int>::iterator it = m_packetCounter.find(type);
+		std::map<PacketType,int>::const_iterator it = m_packetCounter.find(type);
 		if(it != m_packetCounter.end())
 		{
 			return it->second;
@@ -116,48 +118,51 @@ namespace nlsr
 			it.second = 0;
 		}
 	}
-	/*
+
+
 	std::ostream&
-	operator<<(std::ostream& os, const Statistics& stats)
+	operator<<(std::ostream& os, const Statistics& stats) 
 	{
+	//const std::map<Statistics::PacketType,int>& m_packetCounter = stats.getCounter();
 	
-	os <<              "\n++++++++++++++++++++++++++++++++++++++++\n" 
+	os              <<"\n++++++++++++++++++++++++++++++++++++++++\n" 
 					<< "+                                      +\n"
 					<< "+              Statistics              +\n"
 					<< "+                                      +\n"
 					<< "++++++++++++++++++++++++++++++++++++++++\n+\n"
 					<< "+ SENT DATA:\n"
 					<< "+ Interest:\n"
-					<< "+\tHello Interests: " << getSentHelloInt() << "\n"
-					<< "+\tSync Interests: " << getSyncInt() << "\n"
-					<< "\tReSync Interests: " << getReSyncInt() << "\n"
-					<< "+\tLSA Interests: " << getSentLSAInt() << "\n"
+					<< "+\tHello Interests: " << stats.get(Statistics::PacketType::SENT_HELLO_INTEREST) << "\n"
+					<< "+\tSync Interests: " << stats.get(Statistics::PacketType::SENT_SYNC_INTEREST) << "\n"
+					<< "+\tReSync Interests: " << stats.get(Statistics::Statistics::PacketType::SENT_RE_SYNC_INTEREST) << "\n"
+					<< "+\tLSA Interests: " << stats.get(Statistics::PacketType::SENT_LSA_INTEREST) << "\n"
 					<< "+ Data:\n"
-					<< "+\tHello Data: " << getSentHelloData() << "\n"
-					<< "+\tSync Data: " << getSentSyncData() << "\n"
-					<< "+\tAdj Data: " << getSentAdjData() << "\n"
-					<< "+\tCoord Data: " << getSentCoorData() << "\n"
-					<< "+\tName Data: " << getSentNameData() << "\n\n"
-					<< "+ Total Interest: " << getSentHelloInt() + getSyncInt() + getReSyncInt() + getSentLSAInt() << "\n"
-					<< "+ Total Data: " << getSentHelloData() + getSentSyncData() + getSentAdjData() + getSentCoorData() + getSentNameData()
-					<< "+\n+\n+ RECEIVED DATA:\n"
+					<< "+\tHello Data: " << stats.get(Statistics::PacketType::SENT_HELLO_DATA) << "\n"
+					<< "+\tSync Data: " << stats.get(Statistics::PacketType::SENT_SYNC_DATA) << "\n"
+					<< "+\tAdj Data: " << stats.get(Statistics::PacketType::SENT_LSA_ADJ_DATA)<< "\n"
+					<< "+\tCoord Data: " << stats.get(Statistics::PacketType::SENT_LSA_COORD_DATA) << "\n"
+					<< "+\tName Data: " << stats.get(Statistics::PacketType::SENT_LSA_NAME_DATA)<< "\n\n"
+					//<< "+ Total Interest: " << stats.get(0) + stats.get() + stats.get() + stats.get() << "\n"
+					//<< "+ Total Data: " << stats.get(0)() + stats.get() + stats.get() + stats.get() + stats.get()
+					<< "\n+\n RECEIVED DATA:\n"
 					<< "+ Interest:\n"
-					<< "+\tHello Interests: " << getRcvHelloInt() << "\n"
-					<< "+\tSync Interests: " << getRcvSyncInt() << "\n"
-					<< "+\tLSA Interests: " << getRcvLSAInt() << "\n"
+					<< "+\tHello Interests: " << stats.get(Statistics::PacketType::RCV_HELLO_INTEREST)<< "\n"
+					<< "+\tSync Interests: " << stats.get(Statistics::PacketType::RCV_SYNC_INTEREST) << "\n"
+					<< "+\tReSync Interests: " << stats.get(Statistics::PacketType::RCV_RE_SYNC_INTEREST) << "\n"
+					<< "+\tLSA Interests: " << stats.get(Statistics::PacketType::RCV_LSA_INTEREST) << "\n"
 					<< "+ Data:\n"
-					<< "+\tHello Data: " << getRcvHelloData() << "\n"
-					<< "+\tSync Data: " << getRcvSyncData() << "\n"
-					<< "+\tAdj Data: " << getRcvAdjData() << "\n"
-					<< "+\tCoord Data: " << getRcvCoorData() << "\n"
-					<< "+\tName Data: " << getRcvNameData() << "\n\n"
-					<< "+ Total Interest: " << getRcvHelloInt() + getRcvSyncInt() + getRcvLSAInt() << "\n"
-					<< "+ Total Data: " << getRcvHelloData() + getRcvSyncData() + getRcvAdjData() + getRcvCoorData() + getRcvNameData()
+					<< "+\tHello Data: " << stats.get(Statistics::PacketType::RCV_HELLO_DATA) << "\n"
+					<< "+\tSync Data: " << stats.get(Statistics::PacketType::RCV_SYNC_DATA) << "\n"
+					<< "+\tAdj Data: " << stats.get(Statistics::PacketType::RCV_LSA_ADJ_DATA)<< "\n"
+					<< "+\tCoord Data: " << stats.get(Statistics::PacketType::RCV_LSA_COORD_DATA) << "\n"
+					<< "+\tName Data: " << stats.get(Statistics::PacketType::RCV_LSA_NAME_DATA)<< "\n\n"
+					//<< "+ Total Interest: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) << "\n"
+					//<< "+ Total Data: " << m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[) + m_packetCounter[)
 					<< "\n++++++++++++++++++++++++++++++++++++++++++\n";
 
 	  return os;
 	}
-*/
+
 
 	
 
