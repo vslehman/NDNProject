@@ -864,10 +864,28 @@ Lsdb::expressInterest(const ndn::Name& interestName, uint32_t timeoutCount,
     LSA interest
   
     NameLsa::TYPE_STRING
+    AdjLsa::TYPE_STRING
+    CoordinateLsa::TYPE_STRING
     if(interestName[-2].toUri() == "")
 
   */
-  
+  std::string typeLSA = interestName[-2].toUri();
+
+  if(typeLSA == NameLsa::TYPE_STRING)
+  {
+    m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_NAME_LSA_INTEREST);
+  }
+  else if(typeLSA == AdjLsa::TYPE_STRING)
+  {
+    m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_ADJ_LSA_INTEREST);
+  }
+  else if(typeLSA == CoordinateLsa::TYPE_STRING)
+  {
+    m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_COORD_LSA_INTEREST);
+  }
+ 
+
+
   
   m_nlsr.getStatistics().increment(Statistics::PacketType::SENT_LSA_INTEREST);
 }
@@ -906,12 +924,15 @@ Lsdb::processInterest(const ndn::Name& name, const ndn::Interest& interest)
 
     if (interestedLsType == NameLsa::TYPE_STRING) {
       processInterestForNameLsa(interest, originRouter.append(interestedLsType), seqNo);
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_NAME_LSA_INTEREST);
       }
     else if (interestedLsType == AdjLsa::TYPE_STRING) {
       processInterestForAdjacencyLsa(interest, originRouter.append(interestedLsType), seqNo);
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_ADJ_LSA_INTEREST);
     }
     else if (interestedLsType == CoordinateLsa::TYPE_STRING) {
       processInterestForCoordinateLsa(interest, originRouter.append(interestedLsType), seqNo);
+      m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_COORD_LSA_INTEREST);
     }
     else {
       _LOG_WARN("Received unrecognized LSA type: " << interestedLsType);
