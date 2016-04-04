@@ -28,6 +28,7 @@
 #include <ndn-cxx/util/scheduler.hpp>
 
 #include "statistics.hpp"
+#include "test-access-control.hpp"
 
 namespace nlsr {
 
@@ -54,15 +55,16 @@ public:
   void
   processInterest(const ndn::Name& name, const ndn::Interest& interest);
 
+PUBLIC_WITH_TESTS_ELSE_PRIVATE:
+  void
+  onContentValidated(const ndn::shared_ptr<const ndn::Data>& data);
+
 private:
   void
   processInterestTimedOut(const ndn::Interest& interest);
 
   void
   onContent(const ndn::Interest& interest, const ndn::Data& data);
-
-  void
-  onContentValidated(const ndn::shared_ptr<const ndn::Data>& data);
 
   void
   onContentValidationFailed(const ndn::shared_ptr<const ndn::Data>& data,

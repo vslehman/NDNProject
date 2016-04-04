@@ -88,6 +88,53 @@ public:
     }
   }
 
+  void
+  receiveInterestAndCheckSentStats(const std::string& interestPrefix,
+                                   const std::string& lsaType,
+                                   uint32_t seqNo,
+                                   Statistics::PacketType receivedInterestType,
+                                   Statistics::PacketType sentDataType)
+  {
+    size_t rcvBefore = nlsr.getStatistics().get(receivedInterestType);
+    size_t sentBefore = nlsr.getStatistics().get(sentDataType);
+
+    ndn::Name interestName = ndn::Name(ndn::Name(interestPrefix + lsaType).appendNumber(seqNo));
+    lsdb.processInterest(ndn::Name(), ndn::Interest(interestName));
+    face->processEvents(ndn::time::milliseconds(1));
+
+    BOOST_CHECK_EQUAL(nlsr.getStatistics().get(receivedInterestType), rcvBefore + 1);
+    BOOST_CHECK_EQUAL(nlsr.getStatistics().get(sentDataType), sentBefore + 1);
+  }
+
+  void
+  sendInterestAndCheckStats(const std::string& interestPrefix,
+                            const std::string& lsaType,
+                            uint32_t seqNo,
+                            Statistics::PacketType sentInterestType)
+  {
+    size_t sentBefore = nlsr.getStatistics().get(sentInterestType);
+
+    lsdb.expressInterest(ndn::Name(interestPrefix + lsaType).appendNumber(seqNo), 0);
+    face->processEvents(ndn::time::milliseconds(1));
+
+    BOOST_CHECK_EQUAL(nlsr.getStatistics().get(sentInterestType), sentBefore + 1);
+  }
+
+  void
+  receiveDataAndCheckStats(const std::string& interestPrefix,
+                            const std::string& lsaType,
+                            uint32_t seqNo,
+                            Statistics::PacketType receivedDataType)
+  {
+    size_t rcvBefore = nlsr.getStatistics().get(receivedDataType);
+
+    ndn::Name dataName(ndn::Name(interestPrefix + lsaType).appendNumber(seqNo).appendVersion());
+    std::shared_ptr<ndn::Data> data = std::make_shared<ndn::Data>(dataName);
+    lsdb.onContentValidated(data);
+
+    BOOST_CHECK_EQUAL(nlsr.getStatistics().get(receivedDataType), rcvBefore + 1);
+  }
+
 public:
   shared_ptr<ndn::util::DummyClientFace> face;
   Nlsr nlsr;
@@ -169,7 +216,7 @@ BOOST_AUTO_TEST_CASE(LsdbRemoveAndExists)
 
   std::string s1 = "name1";
   std::string s2 = "name2";
-  std::string router1 = "router1/1";
+  std::string routerName = "/ndn/site/%C1.Router/router/";
 
   npl1.insert(s1);
   npl1.insert(s2);
@@ -177,27 +224,15 @@ BOOST_AUTO_TEST_CASE(LsdbRemoveAndExists)
   //For NameLsa lsType is name.
   //12 is seqNo, randomly generated.
   //1800 is the default life time.
-  NameLsa nlsa1(ndn::Name("/router1/1"), NameLsa::TYPE_STRING, 12, testTimePoint, npl1);
+  NameLsa nlsa1(ndn::Name(routerName), NameLsa::TYPE_STRING, 12, testTimePoint, npl1);
 
-  Lsdb lsdb1(nlsr, g_scheduler, nlsr.getSyncLogicHandler());
+  lsdb.installNameLsa(nlsa1);
+  lsdb.writeNameLsdbLog();
 
-  lsdb1.installNameLsa(nlsa1);
-  lsdb1.writeNameLsdbLog();
+  BOOST_CHECK(lsdb.doesLsaExist(ndn::Name(routerName + NameLsa::TYPE_STRING), NameLsa::TYPE_STRING));
 
- // BOOST_CHECK(lsdb1.doesLsaExist(ndn::Name("/router1/1/name"), NameLsa::TYPE_STRING));
-
-  //lsdb1.removeNameLsa(router1);
-
-  ndn::Name interestName = ndn::Name(nlsa1.getKey()).appendNumber(12);
-  std::cout << "\n Interest Name:" <<interestName << std::endl;
-  lsdb1.processInterest(ndn::Name(),ndn::Interest(interestName));
-  face->processEvents(ndn::time::milliseconds(1));
-
- // BOOST_CHECK_EQUAL(lsdb1.doesLsaExist(ndn::Name("/router1/1"), NameLsa::TYPE_STRING), false);
-  //nlsr.getStatistics().printStatistics();
-  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_NAME_DATA), 1);
-  nlsr.getStatistics().printStatistics();
-  
+  lsdb.removeNameLsa(nlsa1.getKey());
+  BOOST_CHECK_EQUAL(lsdb.doesLsaExist(ndn::Name(routerName + NameLsa::TYPE_STRING), NameLsa::TYPE_STRING), false);
 }
 
 BOOST_AUTO_TEST_CASE(InstallNameLsa)
@@ -349,6 +384,97 @@ BOOST_AUTO_TEST_CASE(SeqNo)
 
   BOOST_CHECK_EQUAL(lsdb.getSeqNo(), prevSeqNo + 1);
   prevSeqNo = lsdb.getSeqNo();
+}
+
+BOOST_AUTO_TEST_CASE(StatisticsReceiveInterestSendData)
+{
+  std::string routerName("/ndn/site/%C1.Router/router");
+  ndn::time::system_clock::TimePoint MAX_TIME = ndn::time::system_clock::TimePoint::max();
+  uint32_t seqNo = 1;
+
+  // Adjacency LSA
+  Adjacent adjacency("adjacency");
+  adjacency.setStatus(Adjacent::STATUS_ACTIVE);
+
+  AdjacencyList adjacencies;
+  adjacencies.insert(adjacency);
+
+  AdjLsa adjLsa(routerName, AdjLsa::TYPE_STRING, seqNo, MAX_TIME, 1, adjacencies);
+  lsdb.installAdjLsa(adjLsa);
+
+  const std::string interestPrefix("/ndn/NLSR/LSA/site/%C1.Router/router/");
+
+  // Receive Adjacency LSA Interest
+  receiveInterestAndCheckSentStats(interestPrefix,
+                                   AdjLsa::TYPE_STRING,
+                                   seqNo,
+                                   Statistics::PacketType::RCV_ADJ_LSA_INTEREST,
+                                   Statistics::PacketType::SENT_ADJ_LSA_DATA);
+
+  // Name LSA
+  NamePrefixList prefixes;
+  prefixes.insert("/ndn/name");
+
+  NameLsa nameLsa(routerName, NameLsa::TYPE_STRING, seqNo, MAX_TIME, prefixes);
+  lsdb.installNameLsa(nameLsa);
+
+  // Receive Name LSA Interest
+  receiveInterestAndCheckSentStats(interestPrefix,
+                                   NameLsa::TYPE_STRING,
+                                   seqNo,
+                                   Statistics::PacketType::RCV_NAME_LSA_INTEREST,
+                                   Statistics::PacketType::SENT_NAME_LSA_DATA);
+
+  // Coordinate LSA
+  CoordinateLsa coordLsa(routerName, CoordinateLsa::TYPE_STRING, seqNo, MAX_TIME, 2.5, 30.0);
+  lsdb.installCoordinateLsa(coordLsa);
+
+  // Receive Adjacency LSA Interest
+  receiveInterestAndCheckSentStats(interestPrefix,
+                                   CoordinateLsa::TYPE_STRING,
+                                   seqNo,
+                                   Statistics::PacketType::RCV_COORD_LSA_INTEREST,
+                                   Statistics::PacketType::SENT_COORD_LSA_DATA);
+
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::RCV_ADJ_LSA_INTEREST) +
+                    nlsr.getStatistics().get(Statistics::PacketType::RCV_COORD_LSA_INTEREST) +
+                    nlsr.getStatistics().get(Statistics::PacketType::RCV_NAME_LSA_INTEREST),
+                    nlsr.getStatistics().get(Statistics::PacketType::RCV_LSA_INTEREST));
+}
+
+BOOST_AUTO_TEST_CASE(StatisticsSendInterest)
+{
+  const std::string interestPrefix("/ndn/NLSR/LSA/site/%C1.Router/router/");
+  uint32_t seqNo = 1;
+
+  // Adjacency LSA
+  sendInterestAndCheckStats(interestPrefix, AdjLsa::TYPE_STRING, seqNo, Statistics::PacketType::SENT_ADJ_LSA_INTEREST);
+
+  // Coordinate LSA
+  sendInterestAndCheckStats(interestPrefix, CoordinateLsa::TYPE_STRING, seqNo, Statistics::PacketType::SENT_COORD_LSA_INTEREST);
+
+  // Name LSA
+  sendInterestAndCheckStats(interestPrefix, NameLsa::TYPE_STRING, seqNo, Statistics::PacketType::SENT_NAME_LSA_INTEREST);
+
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_ADJ_LSA_INTEREST) +
+                    nlsr.getStatistics().get(Statistics::PacketType::SENT_COORD_LSA_INTEREST) +
+                    nlsr.getStatistics().get(Statistics::PacketType::SENT_NAME_LSA_INTEREST),
+                    nlsr.getStatistics().get(Statistics::PacketType::SENT_LSA_INTEREST));
+}
+
+BOOST_AUTO_TEST_CASE(StatisticsReceiveData)
+{
+  const std::string interestPrefix("/ndn/NLSR/LSA/site/%C1.Router/router/");
+  uint32_t seqNo = 1;
+
+  // Adjacency LSA
+  receiveDataAndCheckStats(interestPrefix, AdjLsa::TYPE_STRING, seqNo, Statistics::PacketType::RCV_ADJ_LSA_DATA);
+
+  // Coordinate LSA
+  receiveDataAndCheckStats(interestPrefix, CoordinateLsa::TYPE_STRING, seqNo, Statistics::PacketType::RCV_COORD_LSA_DATA);
+
+  // Name LSA
+  receiveDataAndCheckStats(interestPrefix, NameLsa::TYPE_STRING, seqNo, Statistics::PacketType::RCV_NAME_LSA_DATA);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -1,103 +1,93 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2013-2015 Regents of the University of California.
+ * Copyright (c) 2014-2016,  The University of Memphis,
+ *                           Regents of the University of California,
+ *                           Arizona Board of Regents.
  *
- * This file is part of ndn-cxx library (NDN C++ library with eXperimental eXtensions).
+ * This file is part of NLSR (Named-data Link State Routing).
+ * See AUTHORS.md for complete list of NLSR authors and contributors.
  *
- * ndn-cxx library is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser General Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later version.
+ * NLSR is free software: you can redistribute it and/or modify it under the terms
+ * of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
- * ndn-cxx library is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
- * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * NLSR is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
  *
- * You should have received copies of the GNU General Public License and GNU Lesser
- * General Public License along with ndn-cxx, e.g., in COPYING.md file.  If not, see
- * <http://www.gnu.org/licenses/>.
- *
- * See AUTHORS.md for complete list of ndn-cxx authors and contributors.
- */
+ * You should have received a copy of the GNU General Public License along with
+ * NLSR, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
+ **/
 
- #ifndef NDN_STATISTICS_HPP
- #define NDN_STATISTICS_HPP
+#ifndef NLSR_STATISTICS_HPP
+#define NLSR_STATISTICS_HPP
 
+#include <map>
 
- #include <map>
- //#include "enum_stats.hpp"
+namespace nlsr {
 
-
- namespace nlsr 
+class Statistics
 {
 
- 	class Statistics
- 	{
- 
- 	public:
- 		enum class PacketType
- 		{
- 		SENT_HELLO_INTEREST = 1,
- 		RCV_HELLO_INTEREST,
- 		SENT_HELLO_DATA,
- 		RCV_HELLO_DATA,
- 		SENT_SYNC_INTEREST,
- 		SENT_RE_SYNC_INTEREST,
- 		RCV_SYNC_INTEREST,
- 		SENT_SYNC_DATA,
- 		RCV_SYNC_DATA,
- 		SENT_LSA_INTEREST,
- 		SENT_NAME_LSA_INTEREST,
- 		SENT_ADJ_LSA_INTEREST,
- 		SENT_COORD_LSA_INTEREST,
- 		SENT_LSA_ADJ_DATA,
- 		SENT_LSA_COORD_DATA,
- 		SENT_LSA_NAME_DATA,
- 		RCV_NAME_LSA_INTEREST,
- 		RCV_ADJ_LSA_INTEREST,
- 		RCV_COORD_LSA_INTEREST,
- 		RCV_LSA_INTEREST,
- 		RCV_LSA_ADJ_DATA,
- 		RCV_LSA_COORD_DATA,
- 		RCV_LSA_NAME_DATA,
- 		RCV_RE_SYNC_INTEREST
+public:
+  enum class PacketType {
+    SENT_HELLO_INTEREST = 1,
+    SENT_HELLO_DATA,
+    RCV_HELLO_INTEREST,
+    RCV_HELLO_DATA,
+    SENT_SYNC_INTEREST,
+    SENT_SYNC_RECOVERY_INTEREST,
+    SENT_SYNC_DATA,
+    SENT_SYNC_RECOVERY_DATA,
+    RCV_SYNC_INTEREST,
+    RCV_SYNC_RECOVERY_INTEREST,
+    RCV_SYNC_DATA,
+    RCV_SYNC_RECOVERY_DATA,
+    SENT_LSA_INTEREST,
+    SENT_ADJ_LSA_INTEREST,
+    SENT_COORD_LSA_INTEREST,
+    SENT_NAME_LSA_INTEREST,
+    SENT_ADJ_LSA_DATA,
+    SENT_COORD_LSA_DATA,
+    SENT_NAME_LSA_DATA,
+    RCV_LSA_INTEREST,
+    RCV_ADJ_LSA_INTEREST,
+    RCV_COORD_LSA_INTEREST,
+    RCV_NAME_LSA_INTEREST,
+    RCV_ADJ_LSA_DATA,
+    RCV_COORD_LSA_DATA,
+    RCV_NAME_LSA_DATA
+  };
 
-	 	}; 
+  Statistics();
 
- 		Statistics();
- 		 		
- 		void
- 		printStatistics();
+  void
+  printStatistics();
 
- 		/***** GETTERS *****/
- 		size_t 
- 		get(PacketType) const;
-		
-		void
-		resetAll();
+  /***** GETTERS *****/
+  size_t
+  get(PacketType) const;
+  
+  void
+  resetAll();
 
-		/***** SETTERS *****/
+  /***** SETTERS *****/
+  void
+  increment(PacketType);
 
- 		void 
- 		increment(PacketType);
+  const std::map<PacketType,int>&
+  getCounter() const
+  {
+    return m_packetCounter;
+  }
 
- 		const std::map<PacketType,int>&
-  		getCounter() const
-  		{
-  			return m_packetCounter;
-  		}
- 		
-	
-		private:
+private:
+  std::map<PacketType,int> m_packetCounter;
+};
 
-	 		std::map<PacketType,int> m_packetCounter;
+std::ostream&
+operator<<(std::ostream&, const Statistics& stats);
 
-  	};
+} // namespace nlsr
 
-  	std::ostream&
-	operator<<(std::ostream&, const Statistics& );
-  	//Statistics stats;
-
-
-}
-
- #endif
+ #endif // NLSR_STATISTICS_HPP

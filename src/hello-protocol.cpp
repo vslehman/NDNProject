@@ -184,10 +184,6 @@ HelloProtocol::processInterestTimedOut(const ndn::Interest& interest)
 void
 HelloProtocol::onContent(const ndn::Interest& interest, const ndn::Data& data)
 {
-  /*STATISTICS COUNT
-
-  RECEIVE DATA*/
-  m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_HELLO_DATA);
   _LOG_DEBUG("Received data for INFO(name): " << data.getName());
   if (data.getSignature().hasKeyLocator()) {
     if (data.getSignature().getKeyLocator().getType() == ndn::KeyLocator::KeyLocator_Name) {
@@ -221,6 +217,13 @@ HelloProtocol::onContentValidated(const ndn::shared_ptr<const ndn::Data>& data)
       m_nlsr.getLsdb().scheduleAdjLsaBuild();
     }
   }
+
+  /*
+    STATISTICS COUNT
+
+    RECEIVE DATA
+  */
+  m_nlsr.getStatistics().increment(Statistics::PacketType::RCV_HELLO_DATA);
 }
 
 void

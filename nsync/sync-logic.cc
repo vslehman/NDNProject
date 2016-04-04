@@ -91,12 +91,12 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
   , m_validator(validator)
   , m_keyChain(new KeyChain())
   , m_face(face)
+  , m_stats(stats)
   , m_scheduler(face->getIoService())
   , m_randomGenerator (static_cast<unsigned int> (std::time (0)))
   , m_rangeUniformRandom (m_randomGenerator, boost::uniform_int<> (200,1000))
   , m_reexpressionJitter (m_randomGenerator, boost::uniform_int<> (100,500))
   , m_recoveryRetransmissionInterval (m_defaultRecoveryRetransmitInterval)
-  , m_stats(stats)
 {
   m_syncRegisteredPrefixId = m_face->setInterestFilter (m_syncPrefix,
                                                         bind(&SyncLogic::onSyncInterest,
@@ -132,12 +132,12 @@ SyncLogic::SyncLogic (const Name& syncPrefix,
   , m_validator(validator)
   , m_keyChain(new KeyChain())
   , m_face(face)
+  , m_stats(stats)
   , m_scheduler(face->getIoService())
   , m_randomGenerator (static_cast<unsigned int> (std::time (0)))
   , m_rangeUniformRandom (m_randomGenerator, boost::uniform_int<> (200,1000))
   , m_reexpressionJitter (m_randomGenerator, boost::uniform_int<> (100,500))
   , m_recoveryRetransmissionInterval (m_defaultRecoveryRetransmitInterval)
-  , m_stats(stats)
 {
   m_syncRegisteredPrefixId = m_face->setInterestFilter (m_syncPrefix,
                                                         bind(&SyncLogic::onSyncInterest,
@@ -215,7 +215,7 @@ SyncLogic::onSyncInterest (const Name& prefix, const ndn::Interest& interest)
       else if (type == "recovery")
         {
           processSyncRecoveryInterest (name, digest);
-          m_stats.increment(nlsr::Statistics::PacketType::RCV_RE_SYNC_INTEREST);
+          m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_RECOVERY_INTEREST);
         }
     }
   catch (Error::DigestCalculationError &e)
@@ -276,12 +276,22 @@ SyncLogic::onSyncDataValidated(const shared_ptr<const Data>& data)
       if (type == "normal")
         {
           processSyncData (name, digest, wireData, len);
+            /*
+              nlsr::Statistics
+              DATA RECEIVED
+            */
+            m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_DATA);
         }
       else
         {
           // timer is always restarted when we schedule recovery
           m_scheduler.cancelEvent (m_reexpressingRecoveryInterestId);
           processSyncData (name, digest, wireData, len);
+          /*
+            nlsr::Statistics
+            DATA RECEIVED
+          */
+          m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_RECOVERY_DATA);
         }
     }
   catch (Error::DigestCalculationError &e)
@@ -363,11 +373,7 @@ SyncLogic::processSyncData (const Name &name, DigestConstPtr digest,
 {
   DiffStatePtr diffLog = make_shared<DiffState> ();
   bool ownInterestSatisfied = false;
-  /*
-    nlsr::Statistics
-    DATA RECEIVED
-  */
-  m_stats.increment(nlsr::Statistics::PacketType::RCV_SYNC_DATA);
+
   try
     {
 
@@ -692,8 +698,8 @@ SyncLogic::sendSyncRecoveryInterests (DigestConstPtr digest)
   
   counting ReSync interest
 
-*/
-  m_stats.increment(nlsr::Statistics::PacketType::SENT_RE_SYNC_INTEREST);//Add a new parameter to Statistics, differnet kind of interes
+  */
+  m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_RECOVERY_INTEREST);
 }
 
 
@@ -703,14 +709,6 @@ SyncLogic::sendSyncData (const Name &name, DigestConstPtr digest, StateConstPtr 
   SyncStateMsg msg;
   msg << (*state);
   sendSyncData(name, digest, msg);
-  /*
-
-  STATISTICS COUNT
-  
-  Counting SyncData
-
-*/
-  m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_DATA);
 }
 
 // pass in state msg instead of state, so that there is no need to lock the state until
@@ -732,6 +730,20 @@ SyncLogic::sendSyncData (const Name &name, DigestConstPtr digest, SyncStateMsg &
   m_keyChain->sign(*syncData);
 
   m_face->put(*syncData);
+
+  /*
+
+  STATISTICS COUNT
+
+  Counting SyncData
+
+  */
+  if ((name.size() - m_syncPrefix.size()) == 1) {
+    m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_DATA);
+  }
+  else {
+    m_stats.increment(nlsr::Statistics::PacketType::SENT_SYNC_RECOVERY_DATA);
+  }
 
   delete []wireData;
 

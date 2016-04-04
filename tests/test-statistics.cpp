@@ -1,7 +1,8 @@
 /* -*- Mode:C++; c-file-style:"gnu"; indent-tabs-mode:nil; -*- */
 /**
- * Copyright (c) 2014  University of Memphis,
- *                     Regents of the University of California
+ * Copyright (c) 2014-2016,  The University of Memphis,
+ *                           Regents of the University of California,
+ *                           Arizona Board of Regents.
  *
  * This file is part of NLSR (Named-data Link State Routing).
  * See AUTHORS.md for complete list of NLSR authors and contributors.
@@ -16,9 +17,6 @@
  *
  * You should have received a copy of the GNU General Public License along with
  * NLSR, e.g., in COPYING.md file.  If not, see <http://www.gnu.org/licenses/>.
- *
- * \author Ashlesh Gawande <agawande@memphis.edu>
- *
  **/
 
 #include "test-common.hpp"
@@ -28,45 +26,39 @@
 
  #include <ndn-cxx/util/dummy-client-face.hpp>
 
-
 namespace nlsr {
 namespace test {
 
 BOOST_FIXTURE_TEST_SUITE(TestStatistics, BaseFixture)
 
-BOOST_AUTO_TEST_CASE(HelloData)
+BOOST_AUTO_TEST_CASE(HelloProtocolStatistics)
 {
-	std::shared_ptr<ndn::util::DummyClientFace> face = std::make_shared<ndn::util::DummyClientFace>();
-	Nlsr nlsr(g_ioService, g_scheduler, ndn::ref(*face));
-	HelloProtocol& hello = nlsr.getHelloProtocol();
+  std::shared_ptr<ndn::util::DummyClientFace> face = std::make_shared<ndn::util::DummyClientFace>();
+  Nlsr nlsr(g_ioService, g_scheduler, ndn::ref(*face));
+  HelloProtocol& hello = nlsr.getHelloProtocol();
 
+  ConfParameter& conf = nlsr.getConfParameter();
+  conf.setNetwork("/ndn");
+  conf.setSiteName("/router");
+  conf.setRouterName("/memphis");
+  conf.buildRouterPrefix();
+  
+  nlsr.initialize();
 
-	ConfParameter& conf = nlsr.getConfParameter();
-	conf.setNetwork("/ndn");
-	conf.setSiteName("/router");
-	conf.setRouterName("/memphis");
-	conf.buildRouterPrefix();
-	
+  face->processEvents(ndn::time::milliseconds(1));
+  face->sentInterests.clear();
 
-	nlsr.initialize();
+  Adjacent other("/ndn/router/other ", "udp://other", 0, Adjacent::STATUS_ACTIVE, 0, 0);
 
-	face->processEvents(ndn::time::milliseconds(1));
-    face->sentInterests.clear();
-
-
-	Adjacent other("/ndn/router/other ", "udp://other", 0, Adjacent::STATUS_ACTIVE, 0, 0);
   // This router's Adjacency LSA
   nlsr.getAdjacencyList().insert(other);
 
-  //ndn::Interest interest();
   ndn::Name name(conf.getRouterPrefix());
   name.append("NLSR");
   name.append("INFO");
   name.append(other.getName().wireEncode());
 
   BOOST_CHECK_EQUAL(face->sentData.size(), 0);
-
-  //nlsr.getStatistics().resetAll();
 
   ndn::Interest interest(name);
   hello.processInterest(ndn::Name(), interest);
@@ -78,12 +70,21 @@ BOOST_AUTO_TEST_CASE(HelloData)
   hello.expressInterest(name, 1);
   face->processEvents(ndn::time::milliseconds(1));
 
-  //std::vector<ndn::Interest>& interests = face->sentInterests;(
-
   BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_INTEREST), 1);
   
   BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::RCV_HELLO_INTEREST), 1);
   BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::SENT_HELLO_DATA), 1);
+
+  // Receive Hello Data
+  ndn::Name dataName = other.getName();
+  dataName.append("NLSR");
+  dataName.append("INFO");
+  dataName.append(conf.getRouterPrefix().wireEncode());
+
+  std::shared_ptr<ndn::Data> data = std::make_shared<ndn::Data>(dataName);
+  hello.onContentValidated(data);
+
+  BOOST_CHECK_EQUAL(nlsr.getStatistics().get(Statistics::PacketType::RCV_HELLO_DATA), 1);
 
   nlsr.getStatistics().printStatistics();
 }

@@ -241,9 +241,6 @@ private:
                          uint64_t seqNo);
 
   void
-  onContentValidated(const ndn::shared_ptr<const ndn::Data>& data);
-
-  void
   onContentValidationFailed(const ndn::shared_ptr<const ndn::Data>& data, const std::string& msg,
                             const steady_clock::TimePoint& deadline, ndn::Name lsaName,
                             uint64_t seqNo);
@@ -265,6 +262,9 @@ PUBLIC_WITH_TESTS_ELSE_PRIVATE:
   processInterestTimedOut(const ndn::Interest& interest, uint32_t retransmitNo,
                           const steady_clock::TimePoint& deadline, ndn::Name lsaName,
                           uint64_t seqNo);
+
+  void
+  onContentValidated(const ndn::shared_ptr<const ndn::Data>& data);
 
 private:
   system_clock::TimePoint

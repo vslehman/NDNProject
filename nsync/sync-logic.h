@@ -116,12 +116,17 @@ public:
   std::map<std::string, bool>
   getBranchPrefixes() const;
 
+// Should be PUBLIC_WITH_TESTS_ELSE_PRIVATE
+public:
+  void
+  onSyncInterest (const ndn::Name& prefix, const ndn::Interest& interest);
+
+  void
+  onSyncDataValidated(const ndn::shared_ptr<const ndn::Data>& data);
+
 private:
   void
   delayedChecksLoop ();
-
-  void
-  onSyncInterest (const ndn::Name& prefix, const ndn::Interest& interest);
 
   void
   onSyncRegisterSucceed(const ndn::Name& prefix);
@@ -130,16 +135,13 @@ private:
   onSyncRegisterFailed(const ndn::Name& prefix, const std::string& msg);
 
   void
-  onSyncData(const ndn::Interest& interest, ndn::Data& data);
-
-  void
   onSyncTimeout(const ndn::Interest& interest);
 
   void
-  onSyncDataValidationFailed(const ndn::shared_ptr<const ndn::Data>& data);
+  onSyncData(const ndn::Interest& interest, ndn::Data& data);
 
   void
-  onSyncDataValidated(const ndn::shared_ptr<const ndn::Data>& data);
+  onSyncDataValidationFailed(const ndn::shared_ptr<const ndn::Data>& data);
 
   void
   processSyncInterest (const ndn::Name &name,
